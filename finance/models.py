@@ -12,6 +12,13 @@ class Payment(models.Model):
     category = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    monthly_expense = models.ForeignKey(
+        "MonthlyExpense",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="payments",
+    )
 
 
 class MonthlyExpense(models.Model):
