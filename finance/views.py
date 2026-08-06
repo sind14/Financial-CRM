@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
 from django.utils import timezone
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -20,8 +20,20 @@ class PaymentListCreateView(generics.ListCreateAPIView):
 def monthly_summary_view(request):
     today = timezone.localdate()
 
-    year = int(request.query_params.get("year", today.year))
-    month = int(request.query_params.get("month", today.month))
+    try:
+        year = int(request.query_params.get("year", today.year))
+        month = int(request.query_params.get("month", today.month))
+    except ValueError:
+        return Response(
+            {"detail": "Year and month must be numbers."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if not 1 <= month <= 12:
+        return Response(
+            {"detail": "Month must be between 1 and 12."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     payments = Payment.objects.filter(
         date__year=year,
