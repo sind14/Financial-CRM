@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from rest_framework import generics
+from finance.models import Payment
+from finance.serializers import PaymentSerializer
 
-# Create your views here.
+
+class PaymentListCreateView(generics.ListCreateAPIView):
+    queryset = Payment.objects.all().order_by("-date", "-created_at")
+    serializer_class = PaymentSerializer
