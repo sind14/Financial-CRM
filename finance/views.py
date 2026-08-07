@@ -1,19 +1,22 @@
 from decimal import Decimal
-
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
 from finance.models import Payment
 from finance.serializers import PaymentSerializer
 
 
 class PaymentListCreateView(generics.ListCreateAPIView):
-    queryset = Payment.objects.all().order_by("-date", "-created_at")
     serializer_class = PaymentSerializer
+
+    def get_queryset(self):
+        return Payment.objects.filter(owner=self.request.user).order_by("-date", "-created_at")
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 @api_view(["GET"])
@@ -36,6 +39,7 @@ def monthly_summary_view(request):
         )
 
     payments = Payment.objects.filter(
+        owner=request.user,
         date__year=year,
         date__month=month,
     )

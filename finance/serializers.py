@@ -15,4 +15,4 @@ class PaymentSerializer(serializers.ModelSerializer):
             "description",
             "created_at",
         )
-        read_only_fields = ("id", "created_at")
+        read_only_fields = ("id", "created_at", "owner")
