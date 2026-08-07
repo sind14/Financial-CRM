@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 
 class Payment(models.Model):
@@ -19,6 +20,13 @@ class Payment(models.Model):
         blank=True,
         related_name="payments",
     )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="payments",
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return f"{self.get_payment_type_display()}: {self.amount} — {self.category}"
@@ -29,6 +37,13 @@ class MonthlyExpense(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="monthly_expenses",
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return f"{self.name} — {self.amount}"
