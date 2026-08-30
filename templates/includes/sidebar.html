@@ -1,0 +1,32 @@
+<aside class="sidebar">
+
+    <div class="sidebar-logo">
+        <h4>Financial CRM</h4>
+    </div>
+
+    <nav class="sidebar-nav">
+
+        <a
+                href="{% url 'dashboard' %}"
+                class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+        >
+            Dashboard
+        </a>
+
+        <a
+                href="{% url 'payments' %}"
+                class="{% if request.resolver_match.url_name == 'payments' %}active{% endif %}"
+        >
+            Payments
+        </a>
+
+        <a
+                href="{% url 'monthly-expenses' %}"
+                class="{% if request.resolver_match.url_name == 'monthly-expenses' %}active{% endif %}"
+        >
+            Monthly Expenses
+        </a>
+
+    </nav>
+
+</aside>

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="payment-form">
+
+    <h1>Delete Monthly Expense</h1>
+
+    <p>
+        Are you sure you want to delete
+        <strong>{{ expense.name }}</strong>
+        — {{ expense.amount|floatformat:2 }} zł?
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <button type="submit" class="btn-confirm-delete">
+            Delete
+        </button>
+
+        <a href="{% url 'monthly-expenses' %}" class="btn-cancel">
+            Cancel
+        </a>
+    </form>
+
+</div>
+
+{% endblock %}
