@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="payment-form">
+
+    <h2>Add monthly expense</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+
+            <div class="form-field">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+            </div>
+
+            <div class="form-field">
+                {{ form.amount.label_tag }}
+                {{ form.amount }}
+            </div>
+
+        </div>
+
+        <button type="submit" class="btn-add-payment">
+            Add expense
+        </button>
+
+    </form>
+
+</div>
+
+<div class="payments-section">
+
+    <div class="payments-header">
+        <h2>Monthly expenses</h2>
+    </div>
+
+    <div class="table-wrapper">
+
+        <table class="payments-table">
+
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Amount</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+
+            {% for expense in expenses %}
+
+            <tr>
+                <td>{{ expense.name }}</td>
+                <td>{{ expense.amount|floatformat:2 }} zł</td>
+                <td>
+                    <div class="payment-actions">
+                        <a href="{% url 'monthly-expense-edit' expense.pk %}" class="btn-edit">Edit</a>
+                        <a href="{% url 'monthly-expense-delete' expense.pk %}" class="btn-delete">Delete</a>
+                    </div>
+                </td>
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="3" class="empty-payments">
+                    No monthly expenses yet.
+                </td>
+            </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

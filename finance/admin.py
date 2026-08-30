@@ -1,5 +1,6 @@
 from django.contrib import admin
-from finance.models import MonthlyExpense, Payment
+
+from finance.models import Client, MonthlyExpense, Payment
 
 
 @admin.register(Payment)
@@ -11,6 +12,14 @@ class PaymentAdmin(admin.ModelAdmin):
 
 @admin.register(MonthlyExpense)
 class MonthlyExpenseAdmin(admin.ModelAdmin):
-    list_display = ("name", "amount", "is_active")
-    list_filter = ("is_active",)
+    list_display = (
+        "name",
+        "amount",
+    )
     search_fields = ("name",)
+
+
+@admin.register(Client)
+class ClientAdmin(admin.ModelAdmin):
+    list_display = ("name", "surname", "phone", "created_at")
+    search_fields = ("name", "surname", "phone")

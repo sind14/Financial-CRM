@@ -1,19 +1,20 @@
-from datetime import date
 from django.core.management.base import BaseCommand
+from django.utils import timezone
+
 from finance.models import MonthlyExpense, Payment
 
 
 class Command(BaseCommand):
-    help = "Creates monthly payments from active monthly expenses"
+    help = "Creates monthly payments from monthly expenses"
 
     def handle(self, *args, **options):
-        first_day_of_month = date.today().replace(day=1)
+        first_day_of_month = timezone.localdate().replace(day=1)
         create_count = 0
 
-        monthly_expenses = MonthlyExpense.objects.filter(is_active=True)
+        monthly_expenses = MonthlyExpense.objects.all()
 
         for expense in monthly_expenses:
-            payment, created = Payment.objects.get_or_create(
+            _, created = Payment.objects.get_or_create(
                 monthly_expense=expense,
                 date=first_day_of_month,
                 defaults={
@@ -21,17 +22,14 @@ class Command(BaseCommand):
                     "payment_type": Payment.PaymentType.EXPENSE,
                     "category": expense.name,
                     "description": "Автоматично створена щомісячна витрата",
+                    "owner": expense.owner,
                 },
             )
 
             if created:
                 create_count += 1
                 self.stdout.write(
-                    self.style.SUCCESS(
-                        f"Створено витрату: {expense.name}"
-                    )
+                    self.style.SUCCESS(f"Створено витрату: {expense.name}")
                 )
 
-        self.stdout.write(
-            self.style.SUCCESS(f"Створено записів: {create_count}")
-        )
+        self.stdout.write(self.style.SUCCESS(f"Створено записів: {create_count}"))

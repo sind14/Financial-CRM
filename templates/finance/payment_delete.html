@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="payment-form">
+
+    <h1>Delete payment</h1>
+
+    <p>
+        Are you sure you want to delete
+        <strong>{{ payment.category }}</strong>
+        — {{ payment.amount }} zł?
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <button type="submit" class="btn-confirm-delete">
+            Delete
+        </button>
+
+        <a href="{% url 'payments' %}" class="btn-cancel">Cancel</a>
+    </form>
+
+</div>
+
+{% endblock %}
