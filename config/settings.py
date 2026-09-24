@@ -41,6 +41,18 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+# Production security
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+CSRF_TRUSTED_ORIGINS = [
+    f"https://{host.strip()}"
+    for host in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+    if host.strip()
+]
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
 # Application definition
 
 INSTALLED_APPS = [
