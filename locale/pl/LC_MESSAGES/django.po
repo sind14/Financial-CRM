@@ -1,0 +1,233 @@
+# Polish translations for Financial CRM.
+msgid ""
+msgstr ""
+"Project-Id-Version: Financial CRM\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-22 15:20+0200\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: .\finance\forms.py:19 .\finance\forms.py:45
+#: .\templates\finance\client_detail.html:51
+#: .\templates\finance\monthly_expense_detail.html:17
+#: .\templates\finance\monthly_expenses.html:20
+#: .\templates\finance\payments.html:22
+msgid "Amount"
+msgstr "Kwota"
+
+#: .\finance\forms.py:20
+msgid "Payment type"
+msgstr "Typ płatności"
+
+#: .\finance\forms.py:21 .\templates\finance\client_detail.html:48
+#: .\templates\finance\payments.html:17
+msgid "Date"
+msgstr "Data"
+
+#: .\finance\forms.py:22 .\templates\finance\client_detail.html:49
+#: .\templates\finance\payments.html:18
+msgid "Category"
+msgstr "Kategoria"
+
+#: .\finance\forms.py:23 .\templates\finance\client_detail.html:50
+#: .\templates\finance\payments.html:20
+msgid "Description"
+msgstr "Opis"
+
+#: .\finance\forms.py:24 .\templates\finance\payments.html:19
+msgid "Client"
+msgstr "Klient"
+
+#: .\finance\forms.py:44 .\finance\forms.py:58
+#: .\templates\finance\clients.html:16
+#: .\templates\finance\monthly_expense_detail.html:12
+#: .\templates\finance\monthly_expenses.html:19
+msgid "Name"
+msgstr "Nazwa"
+
+#: .\finance\forms.py:59
+msgid "Surname"
+msgstr "Nazwisko"
+
+#: .\finance\forms.py:60 .\templates\finance\client_detail.html:9
+#: .\templates\finance\clients.html:17
+msgid "Phone"
+msgstr "Telefon"
+
+#: .\finance\views.py:194 .\templates\finance\payments.html:9
+msgid "New Payment"
+msgstr "Nowa płatnośc"
+
+#: .\finance\views.py:216
+msgid "Edit Payment"
+msgstr "Edytuj płatność"
+
+#: .\finance\views.py:300
+msgid "New Monthly Expense"
+msgstr "Nowy miesięczny wydatek"
+
+#: .\finance\views.py:340
+msgid "Edit Monthly Expense"
+msgstr "Edytuj miesięczny wydatek"
+
+#: .\finance\views.py:404
+msgid "New Client"
+msgstr "Nowy klient"
+
+#: .\finance\views.py:450
+msgid "Edit Client"
+msgstr "Edytuj klienta"
+
+#: .\templates\finance\client_detail.html:16
+#: .\templates\finance\monthly_expense_detail.html:36
+#: .\templates\finance\payments.html:65
+msgid "Edit"
+msgstr "Edytuj"
+
+#: .\templates\finance\client_detail.html:23
+#: .\templates\finance\confirm_delete.html:7
+#: .\templates\finance\confirm_delete.html:17
+#: .\templates\finance\monthly_expense_detail.html:43
+#: .\templates\finance\payments.html:69
+msgid "Delete"
+msgstr "Usuń"
+
+#: .\templates\finance\client_detail.html:30
+#: .\templates\finance\monthly_expense_detail.html:50
+msgid "Back"
+msgstr "Powrót"
+
+#: .\templates\finance\client_detail.html:39
+msgid "Visits"
+msgstr "Wizyty"
+
+#: .\templates\finance\client_detail.html:77
+msgid "No visits yet."
+msgstr "Brak wizyt."
+
+#: .\templates\finance\client_form.html:29
+#: .\templates\finance\monthly_expense_form.html:24
+#: .\templates\finance\payment_form.html:46
+msgid "Save"
+msgstr "Zapisz"
+
+#: .\templates\finance\client_form.html:36
+#: .\templates\finance\confirm_delete.html:21
+#: .\templates\finance\monthly_expense_form.html:28
+#: .\templates\finance\payment_form.html:50
+msgid "Cancel"
+msgstr "Anuluj"
+
+#: .\templates\finance\clients.html:8
+msgid "New client"
+msgstr "Nowy klient"
+
+#: .\templates\finance\clients.html:18
+msgid "Added"
+msgstr "Dodano"
+
+#: .\templates\finance\clients.html:36
+msgid "No clients yet."
+msgstr "Brak klientów."
+
+#: .\templates\finance\confirm_delete.html:11
+msgid "This action cannot be undone."
+msgstr "Tej operacji nie można cofnąć."
+
+#: .\templates\finance\monthly_expense_detail.html:7
+msgid "Monthly expense details"
+msgstr "Szczegóły miesięcznego wydatku"
+
+#: .\templates\finance\monthly_expense_detail.html:26
+msgid "Created"
+msgstr "Utworzono"
+
+#: .\templates\finance\monthly_expenses.html:9
+msgid "New expense"
+msgstr "Nowy wydatek"
+
+#: .\templates\finance\monthly_expenses.html:42
+msgid "No monthly expenses yet."
+msgstr "Brak miesięcznych wydatków."
+
+#: .\templates\finance\payments.html:21
+msgid "Type"
+msgstr "Typ"
+
+#: .\templates\finance\payments.html:23
+msgid "Actions"
+msgstr "Akcje"
+
+#: .\templates\finance\payments.html:41 .\templates\finance\statistics.html:80
+msgid "Income"
+msgstr "Dochód"
+
+#: .\templates\finance\payments.html:45
+msgid "Expense"
+msgstr "Wydatek"
+
+#: .\templates\finance\payments.html:79
+msgid "No payments yet."
+msgstr "Brak płatności."
+
+#: .\templates\finance\statistics.html:11
+msgid "Total income"
+msgstr "Całkowity dochód"
+
+#: .\templates\finance\statistics.html:20
+msgid "Total expenses"
+msgstr "Całkowite wydatki"
+
+#: .\templates\finance\statistics.html:29
+msgid "Total profit"
+msgstr "Całkowity zysk"
+
+#: .\templates\finance\statistics.html:42
+msgid "This month income"
+msgstr "Dochód w tym miesiącu"
+
+#: .\templates\finance\statistics.html:51
+msgid "This month expenses"
+msgstr "Wydatki w tym miesiącu"
+
+#: .\templates\finance\statistics.html:60
+msgid "This month profit"
+msgstr "Zysk w tym miesiącu"
+
+#: .\templates\finance\statistics.html:71
+msgid "Monthly statistics"
+msgstr "Statystyki miesięczne"
+
+#: .\templates\finance\statistics.html:79
+msgid "Month"
+msgstr "Miesiąc"
+
+#: .\templates\finance\statistics.html:81
+msgid "Expenses"
+msgstr "Wydatki"
+
+#: .\templates\finance\statistics.html:82
+msgid "Profit"
+msgstr "Zysk"
+
+#: .\templates\finance\statistics.html:101
+msgid "No financial data yet."
+msgstr "Brak danych finansowych."
+
+#: .\templates\includes\sidebar.html:14
+msgid "Statistics"
+msgstr "Statystyki"
+
+#: .\templates\includes\sidebar.html:21
+msgid "Payments"
+msgstr "Płatności"
+
+#: .\templates\includes\sidebar.html:28
+msgid "Monthly Expenses"
+msgstr "Miesięczne wydatki"
+
+#: .\templates\includes\sidebar.html:35
+msgid "Clients"
+msgstr "Klienci"

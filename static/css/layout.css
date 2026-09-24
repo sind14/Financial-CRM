@@ -1,0 +1,110 @@
+/* ==========================================================================
+   Layout: Sidebar & Navbar
+   ========================================================================== */
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    min-height: 100vh;
+    background-color: #171321;
+    border-right: 1px solid #2d2640;
+    padding: 24px 16px;
+}
+
+.sidebar-logo {
+    padding: 0 12px;
+    margin-bottom: 40px;
+}
+
+.sidebar-logo h4 {
+    color: #f3f4f6;
+    margin: 0;
+    font-weight: 600;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.sidebar-nav a {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 8px;
+    color: #a8a0b8;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.sidebar-nav a:hover {
+    background-color: #211b2d;
+    color: #f3f4f6;
+}
+
+.sidebar-nav a.active {
+    background-color: #2a2138;
+    color: #a3e635;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #171321;
+    border-bottom: 1px solid #2d2640;
+}
+
+.navbar-brand {
+    color: #f3f4f6 !important;
+    font-weight: 600;
+}
+
+.navbar-user {
+    color: #c4b5fd;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.navbar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Language Selector */
+.language-form select {
+    width: 145px;
+    height: 36px;
+    padding: 0 10px;
+    background: #171421;
+    color: #e8e4f0;
+    border: 1px solid #3a304b;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Logout */
+.logout-form {
+    margin: 0;
+}
+
+.logout-btn {
+    height: 36px;
+    padding: 0 14px;
+    background: transparent;
+    color: #c9c3d3;
+    border: 1px solid #3a304b;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    color: #e8e4f0;
+    border-color: #8067aa;
+    background: #211c2c;
+}

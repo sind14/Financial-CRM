@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<div class="payment-form">
+    <h2>{% translate "Monthly expense details" %}</h2>
+
+    <div class="form-row">
+
+        <div class="form-field">
+            <label>{% translate "Name" %}</label>
+            <p>{{ monthly_expense.name }}</p>
+        </div>
+
+        <div class="form-field">
+            <label>{% translate "Amount" %}</label>
+            <p>
+                -{{ monthly_expense.amount|floatformat:2 }} zł
+            </p>
+        </div>
+
+    </div>
+
+    <div class="form-field">
+        <label>{% translate "Created" %}</label>
+        <p>{{ monthly_expense.created_at }}</p>
+    </div>
+
+    <div class="payment-actions">
+
+        <a
+            href="{% url 'monthly-expense-edit' monthly_expense.pk %}"
+            class="btn-edit"
+        >
+            {% translate "Edit" %}
+        </a>
+
+        <a
+            href="{% url 'monthly-expense-delete' monthly_expense.pk %}"
+            class="btn-delete"
+        >
+            {% translate "Delete" %}
+        </a>
+
+        <a
+            href="{% url 'monthly-expenses' %}"
+            class="btn-cancel"
+        >
+            {% translate "Back" %}
+        </a>
+
+    </div>
+</div>
+
+{% endblock %}

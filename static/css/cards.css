@@ -1,0 +1,45 @@
+/* ==========================================================================
+   Dashboard & Metric Cards
+   ========================================================================== */
+
+.dashboard-card {
+    background-color: #1a1625;
+    border: 1px solid #2d2640;
+    border-radius: 12px;
+    padding: 24px;
+    height: 100%;
+    transition: 0.2s ease;
+}
+
+.dashboard-card:hover {
+    border-color: #8b5cf6;
+    transform: translateY(-2px);
+}
+
+.card-title {
+    color: #a8a0b8;
+    margin-bottom: 8px;
+}
+
+.card-value {
+    color: #f3f4f6;
+    margin: 0;
+}
+
+.card-income {
+    border-left: 4px solid #a3e635;
+}
+
+.card-expense {
+    border-left: 4px solid #f87171;
+}
+
+.card-balance {
+    border-left: 4px solid #a78bfa;
+}
+
+.dashboard-card-description {
+    margin-top: 8px;
+    color: #7f7890 !important;
+    font-size: 0.85rem;
+}

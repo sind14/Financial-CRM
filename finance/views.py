@@ -1,5 +1,6 @@
 from decimal import Decimal
-
+from django.utils.formats import date_format
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
@@ -8,8 +9,7 @@ from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
-from finance.forms import MonthlyExpenseForm, PaymentForm
+from finance.forms import MonthlyExpenseForm, PaymentForm, ClientForm
 from finance.models import Client, MonthlyExpense, Payment
 from finance.serializers import ClientSerializer, PaymentSerializer
 
@@ -91,25 +91,70 @@ def monthly_summary_view(request):
 
 
 @login_required
-def dashboard_view(request):
+def statistics_view(request):
+    payments = Payment.objects.filter(
+        owner=request.user,
+    )
+
+    total_income = payments.filter(
+        payment_type=Payment.PaymentType.INCOME,
+    ).aggregate(
+        total=Coalesce(Sum("amount"), Decimal("0.00"))
+    )["total"]
+
+    total_expenses = payments.filter(
+        payment_type=Payment.PaymentType.EXPENSE,
+    ).aggregate(
+        total=Coalesce(Sum("amount"), Decimal("0.00"))
+    )["total"]
+
+    total_profit = total_income - total_expenses
+
     today = timezone.localdate()
 
-    summary = _get_monthly_summary(
+    current_month_summary = _get_monthly_summary(
         request.user,
         today.year,
         today.month,
     )
 
-    cards = [
-        ("Income", summary["income"]),
-        ("Expenses", summary["expense"]),
-        ("Balance", summary["balance"]),
-    ]
+    monthly_income = current_month_summary["income"]
+    monthly_expenses = current_month_summary["expense"]
+    monthly_profit = current_month_summary["balance"]
+
+    monthly_statistics = []
+
+    months = payments.dates("date", "month", order="DESC")
+
+    for month_date in months:
+        summary = _get_monthly_summary(
+            request.user,
+            month_date.year,
+            month_date.month,
+        )
+
+        monthly_statistics.append({
+            "year": month_date.year,
+            "month": date_format(month_date, "F"),
+            "income": summary["income"],
+            "expenses": summary["expense"],
+            "profit": summary["balance"],
+        })
 
     return render(
         request,
-        "finance/dashboard.html",
-        {"cards": cards},
+        "finance/statistics.html",
+        {
+            "total_income": total_income,
+            "total_expenses": total_expenses,
+            "total_profit": total_profit,
+
+            "monthly_income": monthly_income,
+            "monthly_expenses": monthly_expenses,
+            "monthly_profit": monthly_profit,
+
+            "monthly_statistics": monthly_statistics,
+        },
     )
 
 
@@ -119,6 +164,15 @@ def payments_view(request):
         owner=request.user,
     ).order_by("-date", "-created_at")
 
+    return render(
+        request,
+        "finance/payments.html",
+        {"payments": payments},
+    )
+
+
+@login_required
+def payment_add_view(request):
     if request.method == "POST":
         form = PaymentForm(request.POST, user=request.user)
 
@@ -134,10 +188,10 @@ def payments_view(request):
 
     return render(
         request,
-        "finance/payments.html",
+        "finance/payment_form.html",
         {
-            "payments": payments,
             "form": form,
+            "title": _("New Payment"),
         },
     )
 
@@ -159,7 +213,7 @@ def payment_edit_view(request, pk):
         "finance/payment_form.html",
         {
             "form": form,
-            "title": "Edit Payment",
+            "title": _("Edit Payment"),
         },
     )
 
@@ -173,33 +227,77 @@ def payment_delete_view(request, pk):
 
     return render(
         request,
-        "finance/payment_delete.html",
-        {"payment": payment},
+        "finance/confirm_delete.html",
+        {
+            "object": f"{payment.amount} — {payment.category}",
+            "cancel_url": "payments",
+        },
     )
 
 
 @login_required
 def monthly_expenses_view(request):
-    expenses = MonthlyExpense.objects.filter(owner=request.user).order_by("-created_at")
+    monthly_expenses = MonthlyExpense.objects.filter(
+        owner=request.user,
+    ).order_by("-amount")
 
+    return render(
+        request,
+        "finance/monthly_expenses.html",
+        {"monthly_expenses": monthly_expenses},
+    )
+
+
+@login_required
+def monthly_expense_detail_view(request, pk):
+    monthly_expense = get_object_or_404(
+        MonthlyExpense,
+        pk=pk,
+        owner=request.user,
+    )
+
+    return render(
+        request,
+        "finance/monthly_expense_detail.html",
+        {"monthly_expense": monthly_expense},
+    )
+
+
+@login_required
+def monthly_expense_add_view(request):
     if request.method == "POST":
         form = MonthlyExpenseForm(request.POST)
 
         if form.is_valid():
-            expense = form.save(commit=False)
-            expense.owner = request.user
-            expense.save()
+            monthly_expense = form.save(commit=False)
+            monthly_expense.owner = request.user
+            monthly_expense.save()
+
+            first_day_of_month = timezone.localdate().replace(day=1)
+
+            Payment.objects.get_or_create(
+                monthly_expense=monthly_expense,
+                date=first_day_of_month,
+                defaults={
+                    "amount": monthly_expense.amount,
+                    "payment_type": Payment.PaymentType.EXPENSE,
+                    "category": monthly_expense.name,
+                    "description": "Monthly Expense",
+                    "owner": request.user,
+                },
+            )
 
             return redirect("monthly-expenses")
+
     else:
         form = MonthlyExpenseForm()
 
     return render(
         request,
-        "finance/monthly_expenses.html",
+        "finance/monthly_expense_form.html",
         {
-            "expenses": expenses,
             "form": form,
+            "title": _("New Monthly Expense"),
         },
     )
 
@@ -216,15 +314,31 @@ def monthly_expense_edit_view(request, pk):
         form = MonthlyExpenseForm(request.POST, instance=expense)
 
         if form.is_valid():
-            form.save()
+            expense = form.save()
+
+            first_day_of_month = timezone.localdate().replace(day=1)
+
+            Payment.objects.filter(
+                monthly_expense=expense,
+                date=first_day_of_month,
+                owner=request.user,
+            ).update(
+                amount=expense.amount,
+                category=expense.name,
+            )
+
             return redirect("monthly-expenses")
+
     else:
         form = MonthlyExpenseForm(instance=expense)
 
     return render(
         request,
-        "finance/monthly_expense_edit.html",
-        {"form": form},
+        "finance/monthly_expense_form.html",
+        {
+            "form": form,
+            "title": _("Edit Monthly Expense"),
+        },
     )
 
 
@@ -242,6 +356,115 @@ def monthly_expense_delete_view(request, pk):
 
     return render(
         request,
-        "finance/monthly_expense_delete.html",
-        {"expense": expense},
+        "finance/confirm_delete.html",
+        {
+            "object": expense,
+            "cancel_url": "monthly-expenses",
+        },
+    )
+
+
+@login_required
+def clients_view(request):
+    clients = Client.objects.filter(
+        owner=request.user
+    ).order_by("surname", "name")
+
+    form = ClientForm()
+
+    return render(
+        request,
+        "finance/clients.html",
+        {
+            "clients": clients,
+            "form": form,
+        },
+    )
+
+
+@login_required
+def client_add_view(request):
+    if request.method == "POST":
+        form = ClientForm(request.POST)
+
+        if form.is_valid():
+            client = form.save(commit=False)
+            client.owner = request.user
+            client.save()
+
+            return redirect("clients")
+
+    else:
+        form = ClientForm()
+
+    return render(
+        request,
+        "finance/client_form.html",
+        {
+            "title": _("New Client"),
+            "form": form,
+        },
+    )
+
+
+@login_required
+def client_detail_view(request, pk):
+    client = get_object_or_404(Client, pk=pk, owner=request.user)
+
+    payments = Payment.objects.filter(
+        owner=request.user,
+        client=client,
+        payment_type=Payment.PaymentType.INCOME,
+    ).order_by("-date", "-created_at")
+
+    return render(
+        request,
+        "finance/client_detail.html",
+        {
+            "client": client,
+            "payments": payments,
+        },
+    )
+
+
+@login_required
+def client_edit_view(request, pk):
+    client = get_object_or_404(Client, pk=pk, owner=request.user)
+
+    if request.method == "POST":
+        form = ClientForm(request.POST, instance=client)
+
+        if form.is_valid():
+            form.save()
+            return redirect("clients")
+
+    else:
+        form = ClientForm(instance=client)
+
+    return render(
+        request,
+        "finance/client_form.html",
+        {
+            "form": form,
+            "client": client,
+            "title": _("Edit Client"),
+        },
+    )
+
+
+@login_required
+def client_delete_view(request, pk):
+    client = get_object_or_404(Client, pk=pk, owner=request.user)
+
+    if request.method == "POST":
+        client.delete()
+        return redirect("clients")
+
+    return render(
+        request,
+        "finance/confirm_delete.html",
+        {
+            "object": client,
+            "cancel_url": "clients",
+        },
     )

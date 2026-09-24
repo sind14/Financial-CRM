@@ -3,54 +3,43 @@
 
 {% block content %}
 <div class="payments-section">
-
     <div class="payments-header">
-        <a href="{% url 'monthly-expense-add' %}" class="btn-add-payment">
-            {% translate "New expense" %}
+        <a href="{% url 'client-add' %}" class="btn-add-payment">
+            {% translate "New client" %}
         </a>
     </div>
 
     <div class="table-wrapper">
-
         <table class="payments-table">
-
             <thead>
             <tr>
                 <th>{% translate "Name" %}</th>
-                <th>{% translate "Amount" %}</th>
+                <th>{% translate "Phone" %}</th>
+                <th>{% translate "Added" %}</th>
             </tr>
             </thead>
 
             <tbody>
-
-            {% for expense in monthly_expenses %}
-
+            {% for client in clients %}
             <tr
                     class="clickable-row"
-                    data-url="{% url 'monthly-expense-detail' expense.pk %}"
+                    data-url="{% url 'client-detail' client.pk %}"
                     tabindex="0"
-                    role="link"
-            >
-                <td>{{ expense.name }}</td>
-                <td>-{{ expense.amount|floatformat:2 }} zł</td>
+                    role="link">
+                <td>{{ client }}</td>
+                <td>{{ client.phone|default:"—" }}</td>
+                <td>{{ client.created_at|date:"d M Y" }}</td>
             </tr>
-
             {% empty %}
-
             <tr>
-                <td colspan="2" class="empty-payments">
-                    {% translate "No monthly expenses yet." %}
+                <td colspan="3" class="empty-payments">
+                    {% translate "No clients yet." %}
                 </td>
             </tr>
-
             {% endfor %}
-
             </tbody>
-
         </table>
-
     </div>
-
 </div>
 
 <script>
