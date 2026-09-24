@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<div class="payment-form">
+    <h2>{{ client }}</h2>
+
+    <p>{% translate "Phone" %}: {{ client.phone|default:"—" }}</p>
+
+    <div class="payment-actions">
+        <a
+            href="{% url 'client-edit' client.pk %}"
+            class="btn-edit"
+        >
+            {% translate "Edit" %}
+        </a>
+
+        <a
+            href="{% url 'client-delete' client.pk %}"
+            class="btn-delete"
+        >
+            {% translate "Delete" %}
+        </a>
+
+        <a
+            href="{% url 'clients' %}"
+            class="btn-cancel"
+        >
+            {% translate "Back" %}
+        </a>
+    </div>
+</div>
+
+
+<div class="payments-section">
+
+    <div class="payments-header">
+        <h2>{% translate "Visits" %}</h2>
+    </div>
+
+    <div class="table-wrapper">
+
+        <table class="payments-table">
+
+            <thead>
+            <tr>
+                <th>{% translate "Date" %}</th>
+                <th>{% translate "Category" %}</th>
+                <th>{% translate "Description" %}</th>
+                <th>{% translate "Amount" %}</th>
+            </tr>
+            </thead>
+
+            <tbody>
+
+            {% for payment in payments %}
+
+            <tr>
+                <td>{{ payment.date }}</td>
+
+                <td>{{ payment.category }}</td>
+
+                <td>{{ payment.description|default:"—" }}</td>
+
+                <td>
+                    <span class="amount income">
+                        +{{ payment.amount|floatformat:2 }} zł
+                    </span>
+                </td>
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="4" class="empty-payments">
+                    {% translate "No visits yet." %}
+                </td>
+            </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

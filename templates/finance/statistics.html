@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+
+<div class="row g-4 mb-4">
+
+    <div class="col-md-4">
+        <div class="dashboard-card card-income">
+            <p class="card-title">{% translate "Total income" %}</p>
+            <h2 class="card-value">
+                {{ total_income|floatformat:2 }} zł
+            </h2>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="dashboard-card card-expense">
+            <p class="card-title">{% translate "Total expenses" %}</p>
+            <h2 class="card-value">
+                {{ total_expenses|floatformat:2 }} zł
+            </h2>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="dashboard-card card-balance">
+            <p class="card-title">{% translate "Total profit" %}</p>
+            <h2 class="card-value">
+                {{ total_profit|floatformat:2 }} zł
+            </h2>
+        </div>
+    </div>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-md-4">
+        <div class="dashboard-card card-income">
+            <p class="card-title">{% translate "This month income" %}</p>
+            <h2 class="card-value">
+                {{ monthly_income|floatformat:2 }} zł
+            </h2>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="dashboard-card card-expense">
+            <p class="card-title">{% translate "This month expenses" %}</p>
+            <h2 class="card-value">
+                {{ monthly_expenses|floatformat:2 }} zł
+            </h2>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="dashboard-card card-balance">
+            <p class="card-title">{% translate "This month profit" %}</p>
+            <h2 class="card-value">
+                {{ monthly_profit|floatformat:2 }} zł
+            </h2>
+        </div>
+    </div>
+
+</div>
+
+<div class="mt-5">
+
+    <h2>{% translate "Monthly statistics" %}</h2>
+
+    <div class="table-wrapper">
+
+        <table class="payments-table">
+
+            <thead>
+                <tr>
+                    <th>{% translate "Month" %}</th>
+                    <th>{% translate "Income" %}</th>
+                    <th>{% translate "Expenses" %}</th>
+                    <th>{% translate "Profit" %}</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in monthly_statistics %}
+
+                <tr>
+                    <td>{{ item.month }} {{ item.year }}</td>
+                    <td>{{ item.income|floatformat:2 }} zł</td>
+                    <td>{{ item.expenses|floatformat:2 }} zł</td>
+                    <td>{{ item.profit|floatformat:2 }} zł</td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="4" class="empty-payments">
+                        {% translate "No financial data yet." %}
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

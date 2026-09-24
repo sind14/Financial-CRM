@@ -1,3 +1,4 @@
+{% load i18n %}
 <aside class="sidebar">
 
     <div class="sidebar-logo">
@@ -7,24 +8,31 @@
     <nav class="sidebar-nav">
 
         <a
-                href="{% url 'dashboard' %}"
-                class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+                href="{% url 'statistics' %}"
+                class="{% if request.resolver_match.url_name == 'statistics' %}active{% endif %}"
         >
-            Dashboard
+            {% translate "Statistics" %}
         </a>
 
         <a
                 href="{% url 'payments' %}"
                 class="{% if request.resolver_match.url_name == 'payments' %}active{% endif %}"
         >
-            Payments
+            {% translate "Payments" %}
         </a>
 
         <a
                 href="{% url 'monthly-expenses' %}"
                 class="{% if request.resolver_match.url_name == 'monthly-expenses' %}active{% endif %}"
         >
-            Monthly Expenses
+            {% translate "Monthly Expenses" %}
+        </a>
+
+        <a
+                href="{% url 'clients' %}"
+                class="{% if request.resolver_match.url_name == 'clients' %}active{% endif %}"
+        >
+            {% translate "Clients" %}
         </a>
 
     </nav>

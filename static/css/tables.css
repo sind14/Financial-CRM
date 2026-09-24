@@ -1,0 +1,114 @@
+/* ==========================================================================
+   Tables & Data Lists
+   ========================================================================== */
+
+.payments-section {
+    margin-top: 32px;
+}
+
+.payments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    background-color: #1a1625;
+    border: 1px solid #2d2640;
+    border-radius: 12px;
+}
+
+.payments-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.payments-table th,
+.payments-table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #2d2640;
+}
+
+.payments-table th {
+    color: #a8a0b8;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.payments-table td {
+    color: #f3f4f6;
+}
+
+.payments-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.payments-table tbody tr:hover {
+    background-color: #211b2d;
+}
+
+/* Badges & Type Indicators */
+.payment-type {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.payment-type.income {
+    background-color: rgba(163, 230, 53, 0.12);
+    color: #a3e635;
+}
+
+.payment-type.expense {
+    background-color: rgba(248, 113, 113, 0.12);
+    color: #f87171;
+}
+
+/* Amount highlights */
+.amount {
+    font-weight: 600;
+}
+
+.amount.income {
+    color: #a3e635;
+}
+
+.amount.expense {
+    color: #f87171;
+}
+
+/* Empty State */
+.empty-payments {
+    text-align: center !important;
+    color: #a8a0b8 !important;
+    padding: 40px !important;
+}
+
+/* Table Actions */
+.payment-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.payment-actions a {
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Clickable Table Rows */
+.clickable-row {
+    cursor: pointer;
+}
+
+.clickable-row:focus {
+    outline: 2px solid #a78bfa;
+    outline-offset: -2px;
+}

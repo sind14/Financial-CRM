@@ -1,0 +1,111 @@
+/* ==========================================================================
+   Forms & Inputs
+   ========================================================================== */
+
+/* Payment / Entity Form Wrapper */
+.payment-form {
+    background-color: #1a1625;
+    border: 1px solid #2d2640;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 24px;
+    margin-bottom: 32px;
+}
+
+.payment-form h2 {
+    margin-bottom: 24px;
+}
+
+.payment-form p {
+    margin-bottom: 16px;
+}
+
+.payment-form label {
+    display: block;
+    margin-bottom: 6px;
+    color: #c4b5fd;
+}
+
+.payment-form input,
+.payment-form select,
+.payment-form textarea {
+    width: 100%;
+    background-color: #111827;
+    color: #f3f4f6;
+    border: 1px solid #2d2640;
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.payment-form input:focus,
+.payment-form select:focus,
+.payment-form textarea:focus {
+    outline: none;
+    border-color: #a78bfa;
+}
+
+/* Grid Form Layout */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+}
+
+.form-field {
+    margin-bottom: 18px;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 7px;
+    color: #c4b5fd;
+    font-size: 0.9rem;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #111827;
+    color: #f3f4f6;
+    border: 1px solid #2d2640;
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.form-field textarea {
+    height: 100px;
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+    outline: none;
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.12);
+}
+
+@media (max-width: 900px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Checkbox field */
+.checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 28px;
+}
+
+.form-field.checkbox-field input {
+    width: auto;
+}
+
+.checkbox-field label {
+    margin: 0;
+}

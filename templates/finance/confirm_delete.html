@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="payment-form">
+
+    <h2>{% translate "Delete" %}?</h2>
+
+    <p>{{ object }}</p>
+
+    <p>{% translate "This action cannot be undone." %}</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <button type="submit" class="btn-confirm-delete">
+            {% translate "Delete" %}
+        </button>
+
+        <a href="{% url cancel_url %}" class="btn-cancel">
+            {% translate "Cancel" %}
+        </a>
+    </form>
+
+</div>
+{% endblock %}

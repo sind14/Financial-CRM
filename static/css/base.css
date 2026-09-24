@@ -1,0 +1,29 @@
+/* ==========================================================================
+   Base & Global Styles
+   ========================================================================== */
+
+:root {
+    --bg-main: #111827;
+    --bg-surface: #1a1625;
+    --bg-panel: #171321;
+    --bg-element: #211b2d;
+    --bg-active: #2a2138;
+    
+    --border-color: #2d2640;
+    --border-light: #3a304b;
+    
+    --text-primary: #f3f4f6;
+    --text-secondary: #a8a0b8;
+    --text-muted: #7f7890;
+    --text-accent: #c4b5fd;
+    
+    --color-success: #a3e635;
+    --color-danger: #f87171;
+    --color-primary: #a78bfa;
+    --color-primary-hover: #9178bd;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+}

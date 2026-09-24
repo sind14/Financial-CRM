@@ -1,68 +1,26 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block content %}
-
-<div class="payment-form">
-    <h2>Add payment</h2>
-
-    <form method="post">
-        {% csrf_token %}
-
-        <div class="form-row">
-            <div class="form-field">
-                {{ form.amount.label_tag }}
-                {{ form.amount }}
-            </div>
-
-            <div class="form-field">
-                {{ form.payment_type.label_tag }}
-                {{ form.payment_type }}
-            </div>
-
-            <div class="form-field">
-                {{ form.date.label_tag }}
-                {{ form.date }}
-            </div>
-        </div>
-
-        <div class="form-field">
-            {{ form.category.label_tag }}
-            {{ form.category }}
-        </div>
-
-        <div class="form-field">
-            {{ form.description.label_tag }}
-            {{ form.description }}
-        </div>
-
-        <div class="form-field">
-            {{ form.client.label_tag }}
-            {{ form.client }}
-        </div>
-
-        <button type="submit" class="btn-add-payment">
-            Add payment
-        </button>
-    </form>
-</div>
-
 <div class="payments-section">
 
     <div class="payments-header">
-        <h2>Payments</h2>
+        <a href="{% url 'payment-add' %}" class="btn-add-payment">
+            {% translate "New Payment" %}
+        </a>
     </div>
 
     <div class="table-wrapper">
         <table class="payments-table">
             <thead>
             <tr>
-                <th>Date</th>
-                <th>Category</th>
-                <th>Client</th>
-                <th>Description</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th>Actions</th>
+                <th>{% translate "Date" %}</th>
+                <th>{% translate "Category" %}</th>
+                <th>{% translate "Client" %}</th>
+                <th>{% translate "Description" %}</th>
+                <th>{% translate "Type" %}</th>
+                <th>{% translate "Amount" %}</th>
+                <th>{% translate "Actions" %}</th>
             </tr>
             </thead>
 
@@ -75,37 +33,41 @@
 
                 <td>{{ payment.client|default:"—" }}</td>
 
-                <td>
-                    {{ payment.description|default:"—" }}
-                </td>
+                <td>{{ payment.description|default:"—" }}</td>
 
                 <td>
                     {% if payment.payment_type == "income" %}
                     <span class="payment-type income">
-                                    Income
-                                </span>
+                        {% translate "Income" %}
+                    </span>
                     {% else %}
                     <span class="payment-type expense">
-                                    Expense
-                                </span>
+                        {% translate "Expense" %}
+                    </span>
                     {% endif %}
                 </td>
 
                 <td>
                     {% if payment.payment_type == "income" %}
                     <span class="amount income">
-                                    +{{ payment.amount|floatformat:2 }} zł
-                                </span>
+                        +{{ payment.amount|floatformat:2 }} zł
+                    </span>
                     {% else %}
                     <span class="amount expense">
-                                    -{{ payment.amount|floatformat:2 }} zł
-                                </span>
+                        -{{ payment.amount|floatformat:2 }} zł
+                    </span>
                     {% endif %}
                 </td>
+
                 <td>
                     <div class="payment-actions">
-                        <a href="{% url 'payment-edit' payment.pk %}" class="btn-edit">Edit</a>
-                        <a href="{% url 'payment-delete' payment.pk %}" class="btn-delete">Delete</a>
+                        <a href="{% url 'payment-edit' payment.pk %}" class="btn-edit">
+                            {% translate "Edit" %}
+                        </a>
+
+                        <a href="{% url 'payment-delete' payment.pk %}" class="btn-delete">
+                            {% translate "Delete" %}
+                        </a>
                     </div>
                 </td>
             </tr>
@@ -114,7 +76,7 @@
 
             <tr>
                 <td colspan="7" class="empty-payments">
-                    No payments yet.
+                    {% translate "No payments yet." %}
                 </td>
             </tr>
 
@@ -124,5 +86,4 @@
     </div>
 
 </div>
-
 {% endblock %}

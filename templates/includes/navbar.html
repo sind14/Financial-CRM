@@ -1,5 +1,49 @@
+{% load i18n %}
+
 <nav class="navbar px-4 py-3">
+
     <div class="navbar-user">
         {{ request.user.username }}
     </div>
+
+    <div class="navbar-actions">
+
+        {% get_current_language as CURRENT_LANGUAGE %}
+
+        <form action="{% url 'set_language' %}" method="post" class="language-form">
+            {% csrf_token %}
+
+            <select name="language" onchange="this.form.submit()">
+
+                {% if CURRENT_LANGUAGE == "en" %}
+                    <option value="en" selected>English</option>
+                {% else %}
+                    <option value="en">English</option>
+                {% endif %}
+
+                {% if CURRENT_LANGUAGE == "uk" %}
+                    <option value="uk" selected>Українська</option>
+                {% else %}
+                    <option value="uk">Українська</option>
+                {% endif %}
+
+                {% if CURRENT_LANGUAGE == "pl" %}
+                    <option value="pl" selected>Polski</option>
+                {% else %}
+                    <option value="pl">Polski</option>
+                {% endif %}
+
+            </select>
+        </form>
+
+        <form action="{% url 'logout' %}" method="post" class="logout-form">
+            {% csrf_token %}
+
+            <button type="submit" class="logout-btn">
+                {% translate "Logout" %}
+            </button>
+        </form>
+
+    </div>
+
 </nav>

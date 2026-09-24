@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block content %}
 
 <div class="payment-form">
 
-    <h1>Edit Payment</h1>
+    <h2>{{ title }}</h2>
 
     <form method="post">
         {% csrf_token %}
@@ -42,11 +43,11 @@
         </div>
 
         <button type="submit" class="btn-add-payment">
-            Save
+            {% translate "Save" %}
         </button>
 
         <a href="{% url 'payments' %}" class="btn-cancel">
-            Cancel
+            {% translate "Cancel" %}
         </a>
 
     </form>
