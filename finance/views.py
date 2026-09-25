@@ -9,8 +9,8 @@ from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from finance.forms import MonthlyExpenseForm, PaymentForm, ClientForm
-from finance.models import Client, MonthlyExpense, Payment
+from finance.forms import MonthlyExpenseForm, PaymentForm, ClientForm, PaymentCategoryForm
+from finance.models import Client, MonthlyExpense, Payment, PaymentCategory
 from finance.serializers import ClientSerializer, PaymentSerializer
 
 
@@ -179,6 +179,10 @@ def payment_add_view(request):
         if form.is_valid():
             payment = form.save(commit=False)
             payment.owner = request.user
+
+            if payment.category_option:
+                payment.category = payment.category_option.name
+
             payment.save()
 
             return redirect("payments")
@@ -202,7 +206,13 @@ def payment_edit_view(request, pk):
     if request.method == "POST":
         form = PaymentForm(request.POST, instance=payment, user=request.user)
         if form.is_valid():
-            form.save()
+            payment = form.save(commit=False)
+
+            if payment.category_option:
+                payment.category = payment.category_option.name
+
+            payment.save()
+
             return redirect("payments")
 
     else:
@@ -231,6 +241,95 @@ def payment_delete_view(request, pk):
         {
             "object": f"{payment.amount} — {payment.category}",
             "cancel_url": "payments",
+        },
+    )
+
+
+@login_required
+def payment_categories_view(request):
+    categories = PaymentCategory.objects.filter(
+        owner=request.user,
+    ).order_by("name")
+
+    return render(
+        request,
+        "finance/payment_categories.html",
+        {
+            "categories": categories,
+        },
+    )
+
+
+@login_required
+def payment_category_add_view(request):
+    if request.method == "POST":
+        form = PaymentCategoryForm(request.POST)
+
+        if form.is_valid():
+            category = form.save(commit=False)
+            category.owner = request.user
+            category.save()
+
+            return redirect("payment-categories")
+    else:
+        form = PaymentCategoryForm()
+
+    return render(
+        request,
+        "finance/payment_category_form.html",
+        {
+            "form": form,
+            "title": _("New Payment Category"),
+        },
+    )
+
+
+@login_required
+def payment_category_edit_view(request, pk):
+    category = get_object_or_404(
+        PaymentCategory,
+        pk=pk,
+        owner=request.user,
+    )
+
+    if request.method == "POST":
+        form = PaymentCategoryForm(request.POST, instance=category)
+
+        if form.is_valid():
+            form.save()
+            return redirect("payment-categories")
+    else:
+        form = PaymentCategoryForm(instance=category)
+
+    return render(
+        request,
+        "finance/payment_category_form.html",
+        {
+            "form": form,
+            "title": _("Edit Payment Category"),
+            "category": category,
+        },
+    )
+
+
+@login_required
+def payment_category_delete_view(request, pk):
+    category = get_object_or_404(
+        PaymentCategory,
+        pk=pk,
+        owner=request.user,
+    )
+
+    if request.method == "POST":
+        category.delete()
+        return redirect("payment-categories")
+
+    return render(
+        request,
+        "finance/confirm_delete.html",
+        {
+            "object": category,
+            "cancel_url": "payment-categories",
         },
     )
 

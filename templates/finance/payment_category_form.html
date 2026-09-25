@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="payment-form">
+    <h2>{{ title }}</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-field">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+            </div>
+
+            <div class="form-field">
+                {{ form.default_amount.label_tag }}
+                {{ form.default_amount }}
+            </div>
+        </div>
+
+        <button type="submit" class="btn-add-payment">
+            {% translate "Save" %}
+        </button>
+
+        <a
+                href="{% url 'payment-categories' %}"
+                class="btn-cancel"
+        >
+            {% translate "Cancel" %}
+        </a>
+
+        {% if category %}
+            <a
+                    href="{% url 'payment-category-delete' category.pk %}"
+                    class="btn-delete"
+            >
+                {% translate "Delete" %}
+            </a>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

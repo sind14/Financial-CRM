@@ -6,6 +6,10 @@ from finance.views import (
     payment_add_view,
     payment_edit_view,
     payment_delete_view,
+    payment_categories_view,
+    payment_category_add_view,
+    payment_category_edit_view,
+    payment_category_delete_view,
     monthly_expenses_view,
     monthly_expense_detail_view,
     monthly_expense_add_view,
@@ -25,6 +29,11 @@ urlpatterns = [
     path("payments/add/", payment_add_view, name="payment-add"),
     path("payments/<int:pk>/edit/", payment_edit_view, name="payment-edit"),
     path("payments/<int:pk>/delete/", payment_delete_view, name="payment-delete"),
+
+    path("payment-categories/", payment_categories_view, name="payment-categories"),
+    path("payment-categories/add/", payment_category_add_view, name="payment-category-add"),
+    path("payment-categories/<int:pk>/edit/", payment_category_edit_view, name="payment-category-edit"),
+    path("payment-categories/<int:pk>/delete/", payment_category_delete_view, name="payment-category-delete"),
 
     path("monthly-expenses/", monthly_expenses_view, name="monthly-expenses"),
     path("monthly-expenses/<int:pk>/", monthly_expense_detail_view, name="monthly-expense-detail"),
