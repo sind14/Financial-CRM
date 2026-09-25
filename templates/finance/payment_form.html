@@ -3,14 +3,23 @@
 
 {% block content %}
 
-<div class="payment-form">
+<div class="payment-form-container">
+    <div class="payment-form">
+        <h2>{{ title }}</h2>
 
-    <h2>{{ title }}</h2>
+        <form method="post">
+            {% csrf_token %}
 
-    <form method="post">
-        {% csrf_token %}
+            <div class="form-field">
+                {{ form.client.label_tag }}
+                {{ form.client }}
+            </div>
 
-        <div class="form-row">
+            <div class="form-field">
+                {{ form.category_option.label_tag }}
+                {{ form.category_option }}
+            </div>
+
             <div class="form-field">
                 {{ form.amount.label_tag }}
                 {{ form.amount }}
@@ -22,36 +31,40 @@
             </div>
 
             <div class="form-field">
+                {{ form.description.label_tag }}
+                {{ form.description }}
+            </div>
+
+            <div class="form-field">
                 {{ form.date.label_tag }}
                 {{ form.date }}
             </div>
-        </div>
 
-        <div class="form-field">
-            {{ form.category.label_tag }}
-            {{ form.category }}
-        </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-add-payment">
+                    {% translate "Save" %}
+                </button>
 
-        <div class="form-field">
-            {{ form.description.label_tag }}
-            {{ form.description }}
-        </div>
-
-        <div class="form-field">
-            {{ form.client.label_tag }}
-            {{ form.client }}
-        </div>
-
-        <button type="submit" class="btn-add-payment">
-            {% translate "Save" %}
-        </button>
-
-        <a href="{% url 'payments' %}" class="btn-cancel">
-            {% translate "Cancel" %}
-        </a>
-
-    </form>
-
+                <a href="{% url 'payments' %}" class="btn-cancel">
+                    {% translate "Cancel" %}
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
+
+<script>
+const categorySelect = document.getElementById("id_category_option");
+const amountInput = document.getElementById("id_amount");
+
+categorySelect.addEventListener("change", function () {
+    const selectedOption = this.options[this.selectedIndex];
+    const defaultAmount = selectedOption.dataset.defaultAmount;
+
+    if (defaultAmount) {
+        amountInput.value = defaultAmount;
+    }
+});
+</script>
 
 {% endblock %}
