@@ -2,47 +2,83 @@
 {% load i18n %}
 
 {% block content %}
+<div class="client-card">
+    <form method="post" id="client-form" class="client-card-form">
+        {% csrf_token %}
 
-<div class="payment-form">
-    <h2>{{ client }}</h2>
+        <div class="client-fields">
+            <div class="client-field">
+                <span class="client-value" data-field="name">
+                    {{ client.name }}
+                </span>
 
-    <p>{% translate "Phone" %}: {{ client.phone|default:"—" }}</p>
+                <input
+                    type="text"
+                    name="name"
+                    value="{{ client.name }}"
+                    class="client-edit-input"
+                    hidden
+                    required
+                >
+            </div>
 
-    <div class="payment-actions">
-        <a
-            href="{% url 'client-edit' client.pk %}"
-            class="btn-edit"
-        >
-            {% translate "Edit" %}
-        </a>
+            <div class="client-field">
+                <span class="client-value" data-field="surname">
+                    {{ client.surname }}
+                </span>
 
-        <a
-            href="{% url 'clients' %}"
-            class="btn-cancel"
-        >
-            {% translate "Back" %}
-        </a>
+                <input
+                    type="text"
+                    name="surname"
+                    value="{{ client.surname }}"
+                    class="client-edit-input"
+                    hidden
+                    required
+                >
+            </div>
 
-        <a
-            href="{% url 'client-delete' client.pk %}"
-            class="btn-delete"
-        >
-            {% translate "Delete" %}
-        </a>
-    </div>
+            <div class="client-field">
+                <span class="client-value" data-field="phone">
+                    {{ client.phone|default:"—" }}
+                </span>
+
+                <input
+                    type="text"
+                    name="phone"
+                    value="{{ client.phone|default:'' }}"
+                    class="client-edit-input"
+                    placeholder="{% translate 'Phone' %}"
+                    hidden
+                >
+            </div>
+        </div>
+
+        <div class="client-actions-wrapper">
+            <button type="submit" class="btn-add-payment" id="client-save-btn" hidden>
+                {% translate "Save" %}
+            </button>
+
+            <a href="{% url 'clients' %}" class="btn-cancel">
+                {% translate "Back" %}
+            </a>
+
+            <a
+                href="{% url 'client-delete' client.pk %}"
+                class="btn-delete"
+            >
+                {% translate "Delete" %}
+            </a>
+        </div>
+    </form>
 </div>
 
-
 <div class="payments-section">
-
     <div class="payments-header">
         <h2>{% translate "Visits" %}</h2>
     </div>
 
     <div class="table-wrapper">
-
         <table class="payments-table">
-
             <thead>
             <tr>
                 <th>{% translate "Date" %}</th>
@@ -53,39 +89,52 @@
             </thead>
 
             <tbody>
-
             {% for payment in payments %}
-
             <tr>
                 <td>{{ payment.date }}</td>
-
                 <td>{{ payment.service }}</td>
-
                 <td>{{ payment.description|default:"—" }}</td>
-
                 <td>
                     <span class="amount income">
                         +{{ payment.amount|floatformat:2 }} zł
                     </span>
                 </td>
             </tr>
-
             {% empty %}
-
             <tr>
                 <td colspan="4" class="empty-payments">
                     {% translate "No visits yet." %}
                 </td>
             </tr>
-
             {% endfor %}
-
             </tbody>
-
         </table>
-
     </div>
-
 </div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const saveButton = document.getElementById("client-save-btn");
+        const values = document.querySelectorAll(".client-value");
+
+        values.forEach((value) => {
+            value.addEventListener("click", () => {
+                const fieldName = value.dataset.field;
+                const input = document.querySelector(
+                    `.client-edit-input[name="${fieldName}"]`
+                );
+
+                if (input) {
+                    value.hidden = true;
+                    input.hidden = false;
+                    input.focus();
+
+                    if (saveButton) {
+                        saveButton.hidden = false;
+                    }
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

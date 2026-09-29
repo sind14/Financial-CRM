@@ -89,9 +89,9 @@
 
                 <tr>
                     <td>{{ item.month }} {{ item.year }}</td>
-                    <td>{{ item.income|floatformat:2 }} zł</td>
-                    <td>{{ item.expenses|floatformat:2 }} zł</td>
-                    <td>{{ item.profit|floatformat:2 }} zł</td>
+                    <td class="amount income">{{ item.income|floatformat:2 }} zł</td>
+                    <td class="amount expense">{{ item.expenses|floatformat:2 }} zł</td>
+                    <td class="amount profit">{{ item.profit|floatformat:2 }} zł</td>
                 </tr>
 
                 {% empty %}

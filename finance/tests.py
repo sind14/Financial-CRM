@@ -58,6 +58,9 @@ class PaymentServiceTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Стрижка")
         self.assertContains(response, "300.00")
+        self.assertContains(response, "service-value")
+        self.assertContains(response, f'id="service-delete-btn-{service.pk}"')
+        self.assertContains(response, reverse("payment-service-delete", kwargs={"pk": service.pk}))
 
     def test_payment_service_add_view(self):
         response = self.client.post(
@@ -137,6 +140,37 @@ class PaymentServiceTests(TestCase):
         self.assertIsNotNone(payment)
         self.assertEqual(payment.service, "Оренда офісу")
 
+    def test_monthly_expenses_list_view(self):
+        expense = MonthlyExpense.objects.create(
+            name="Інтернет",
+            amount=Decimal("100.00"),
+            owner=self.user,
+        )
+        response = self.client.get(reverse("monthly-expenses"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Інтернет")
+        self.assertContains(response, "-100.00 zł")
+        self.assertContains(response, "expense-value")
+        self.assertContains(response, "amount expense")
+        self.assertContains(response, "col-expense-date")
+        self.assertContains(response, f'id="expense-delete-btn-{expense.pk}"')
+        self.assertContains(response, reverse("monthly-expense-delete", kwargs={"pk": expense.pk}))
+
+    def test_monthly_expense_edit_view(self):
+        expense = MonthlyExpense.objects.create(
+            name="Комуналка",
+            amount=Decimal("500.00"),
+            owner=self.user,
+        )
+        response = self.client.post(
+            reverse("monthly-expense-edit", kwargs={"pk": expense.pk}),
+            {"name": "Комунальні послуги", "amount": "600.00"},
+        )
+        self.assertRedirects(response, reverse("monthly-expenses"))
+        expense.refresh_from_db()
+        self.assertEqual(expense.name, "Комунальні послуги")
+        self.assertEqual(expense.amount, Decimal("600.00"))
+
     def test_payment_serializer(self):
         payment = Payment.objects.create(
             amount=Decimal("120.00"),
@@ -148,3 +182,55 @@ class PaymentServiceTests(TestCase):
         serializer = PaymentSerializer(payment)
         self.assertEqual(serializer.data["service"], "Консультація")
         self.assertNotIn("category", serializer.data)
+
+    def test_clients_list_and_add_inline(self):
+        client = Client.objects.create(
+            name="Іван",
+            surname="Франко",
+            phone="+380501234567",
+            owner=self.user,
+        )
+        response = self.client.get(reverse("clients"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Іван Франко")
+        self.assertContains(response, "+380501234567")
+        self.assertContains(response, 'id="btn-add-client"')
+        self.assertContains(response, 'id="new-client-row"')
+        self.assertContains(response, reverse("client-add"))
+
+        # Test adding a client via POST to client-add
+        add_response = self.client.post(
+            reverse("client-add"),
+            {"name": "Леся", "surname": "Українка", "phone": "+380509876543"},
+        )
+        self.assertRedirects(add_response, reverse("clients"))
+        self.assertTrue(
+            Client.objects.filter(name="Леся", surname="Українка", owner=self.user).exists()
+        )
+
+    def test_redirects_and_cleanup(self):
+        client = Client.objects.create(
+            name="Тарас",
+            surname="Шевченко",
+            owner=self.user,
+        )
+        expense = MonthlyExpense.objects.create(
+            name="Оренда",
+            amount=Decimal("5000.00"),
+            owner=self.user,
+        )
+
+        # GET on add views redirects to corresponding list pages
+        self.assertRedirects(self.client.get(reverse("client-add")), reverse("clients"))
+        self.assertRedirects(self.client.get(reverse("payment-service-add")), reverse("payment-services"))
+        self.assertRedirects(self.client.get(reverse("monthly-expense-add")), reverse("monthly-expenses"))
+
+        # Legacy detail/edit redirects
+        self.assertRedirects(
+            self.client.get(reverse("monthly-expense-detail", kwargs={"pk": expense.pk})),
+            reverse("monthly-expenses"),
+        )
+        self.assertRedirects(
+            self.client.get(reverse("client-edit", kwargs={"pk": client.pk})),
+            reverse("client-detail", kwargs={"pk": client.pk}),
+        )

@@ -2,58 +2,189 @@
 {% load i18n %}
 
 {% block content %}
+
 <div class="payments-section">
+
     <div class="payments-header">
-        <a href="{% url 'client-add' %}" class="btn-add-payment">
+        <button type="button" class="btn-add-payment" id="btn-add-client">
             {% translate "New client" %}
-        </a>
+        </button>
     </div>
 
     <div class="table-wrapper">
+        <form id="new-client-form" method="post" action="{% url 'client-add' %}">
+            {% csrf_token %}
+        </form>
+
         <table class="payments-table">
+
             <thead>
             <tr>
                 <th>{% translate "Name" %}</th>
                 <th>{% translate "Phone" %}</th>
+                <th>{% translate "Last visit" %}</th>
+                <th>{% translate "Visits" %}</th>
+                <th>{% translate "Total spent" %}</th>
                 <th>{% translate "Added" %}</th>
             </tr>
             </thead>
 
             <tbody>
+
+            <tr id="new-client-row" hidden>
+                <td>
+                    <div class="new-client-name-inputs">
+                        <input
+                            form="new-client-form"
+                            type="text"
+                            name="name"
+                            id="new-client-name-input"
+                            class="table-edit-input"
+                            placeholder="{% translate 'Name' %}"
+                            required
+                        >
+                        <input
+                            form="new-client-form"
+                            type="text"
+                            name="surname"
+                            id="new-client-surname-input"
+                            class="table-edit-input"
+                            placeholder="{% translate 'Surname' %}"
+                            required
+                        >
+                    </div>
+                </td>
+                <td>
+                    <input
+                        form="new-client-form"
+                        type="text"
+                        name="phone"
+                        id="new-client-phone-input"
+                        class="table-edit-input"
+                        placeholder="{% translate 'Phone' %}"
+                    >
+                </td>
+                <td>—</td>
+                <td>—</td>
+                <td>—</td>
+                <td>
+                    <div class="table-actions">
+                        <button
+                            form="new-client-form"
+                            type="submit"
+                            class="btn-add-payment btn-sm"
+                        >
+                            {% translate "Save" %}
+                        </button>
+                        <button
+                            type="button"
+                            class="btn-cancel btn-sm"
+                            id="cancel-new-client-btn"
+                        >
+                            {% translate "Cancel" %}
+                        </button>
+                    </div>
+                </td>
+            </tr>
+
             {% for client in clients %}
+
             <tr
                     class="clickable-row"
                     data-url="{% url 'client-detail' client.pk %}"
                     tabindex="0"
-                    role="link">
+                    role="link"
+            >
                 <td>{{ client }}</td>
-                <td>{{ client.phone|default:"—" }}</td>
-                <td>{{ client.created_at|date:"d M Y" }}</td>
+
+                <td>
+                    {{ client.phone|default:"—" }}
+                </td>
+
+                <td>
+                    {% if client.last_visit %}
+                        {{ client.last_visit|date:"d M Y" }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+
+                <td>
+                    {{ client.visits_count }}
+                </td>
+
+                <td class="amount income">
+                    {{ client.total_spent|default:0|floatformat:2 }} zł
+                </td>
+
+                <td>
+                    {{ client.created_at|date:"d M Y" }}
+                </td>
             </tr>
+
             {% empty %}
-            <tr>
-                <td colspan="3" class="empty-payments">
+
+            <tr id="empty-clients-row">
+                <td colspan="6" class="empty-payments">
                     {% translate "No clients yet." %}
                 </td>
             </tr>
+
             {% endfor %}
+
             </tbody>
+
         </table>
     </div>
+
 </div>
 
 <script>
-    document.querySelectorAll(".clickable-row").forEach((row) => {
-        row.addEventListener("click", () => {
-            window.location.href = row.dataset.url;
-        });
+    document.addEventListener("DOMContentLoaded", function () {
+        const addBtn = document.getElementById("btn-add-client");
+        const newRow = document.getElementById("new-client-row");
+        const cancelBtn = document.getElementById("cancel-new-client-btn");
+        const emptyRow = document.getElementById("empty-clients-row");
+        const nameInput = document.getElementById("new-client-name-input");
+        const surnameInput = document.getElementById("new-client-surname-input");
+        const phoneInput = document.getElementById("new-client-phone-input");
 
-        row.addEventListener("keydown", (event) => {
-            if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                row.click();
-            }
+        if (addBtn && newRow) {
+            addBtn.addEventListener("click", () => {
+                newRow.hidden = false;
+                if (emptyRow) emptyRow.hidden = true;
+                if (nameInput) nameInput.focus();
+            });
+        }
+
+        if (cancelBtn && newRow) {
+            cancelBtn.addEventListener("click", () => {
+                newRow.hidden = true;
+                if (nameInput) nameInput.value = "";
+                if (surnameInput) surnameInput.value = "";
+                if (phoneInput) phoneInput.value = "";
+                if (emptyRow) {
+                    const clientRows = document.querySelectorAll(".clickable-row");
+                    if (clientRows.length === 0) {
+                        emptyRow.hidden = false;
+                    }
+                }
+            });
+        }
+
+        document.querySelectorAll(".clickable-row").forEach((row) => {
+            row.addEventListener("click", () => {
+                window.location.href = row.dataset.url;
+            });
+
+            row.addEventListener("keydown", (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    row.click();
+                }
+            });
         });
     });
 </script>
+
 {% endblock %}

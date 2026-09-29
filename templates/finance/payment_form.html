@@ -10,12 +10,12 @@
         <form method="post">
             {% csrf_token %}
 
-            <div class="form-field">
+            <div class="form-field" id="client-field">
                 {{ form.client.label_tag }}
                 {{ form.client }}
             </div>
 
-            <div class="form-field">
+            <div class="form-field" id="service-field">
                 {{ form.service_option.label_tag }}
                 {{ form.service_option }}
             </div>
@@ -25,9 +25,27 @@
                 {{ form.amount }}
             </div>
 
-            <div class="form-field">
-                {{ form.payment_type.label_tag }}
-                {{ form.payment_type }}
+            <div class="payment-type-field">
+                <div class="payment-type-toggle">
+                    <span class="payment-type-label income-label">
+                        {% translate "Income" %}
+                    </span>
+
+                    <label class="toggle">
+                        {{ form.payment_type }}
+                        <span class="toggle-slider"></span>
+                    </label>
+
+                    <span class="payment-type-label expense-label">
+                        {% translate "Expense" %}
+                    </span>
+                </div>
+
+                {% if form.payment_type.errors %}
+                    <div class="form-error">
+                        {{ form.payment_type.errors }}
+                    </div>
+                {% endif %}
             </div>
 
             <div class="form-field">
@@ -63,17 +81,83 @@
 </div>
 
 <script>
-const serviceSelect = document.getElementById("id_service_option");
-const amountInput = document.getElementById("id_amount");
+    const paymentForm = document.querySelector(".payment-form");
 
-serviceSelect.addEventListener("change", function () {
-    const selectedOption = this.options[this.selectedIndex];
-    const defaultAmount = selectedOption.dataset.defaultAmount;
+    const serviceSelect = document.getElementById("id_service_option");
+    const serviceField = document.getElementById("service-field");
+    const amountInput = document.getElementById("id_amount");
 
-    if (defaultAmount) {
-        amountInput.value = defaultAmount;
+    const clientField = document.getElementById("client-field");
+    const clientInput = document.getElementById("id_client");
+
+    const paymentTypeSelect = document.getElementById("id_payment_type");
+
+    const toggle = document.querySelector(".toggle");
+    const toggleSlider = document.querySelector(".toggle-slider");
+
+    const incomeLabel = document.querySelector(".income-label");
+    const expenseLabel = document.querySelector(".expense-label");
+
+
+    serviceSelect.addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
+        const defaultAmount = selectedOption.dataset.defaultAmount;
+
+        if (defaultAmount) {
+            amountInput.value = defaultAmount;
+        }
+    });
+
+
+    function updatePaymentTypeUI() {
+        const isExpense = paymentTypeSelect.value === "expense";
+
+        paymentForm.classList.remove("income-mode", "expense-mode");
+
+        if (isExpense) {
+            toggleSlider.classList.add("expense");
+
+            incomeLabel.classList.remove("active");
+            expenseLabel.classList.add("active");
+
+            clientField.style.display = "none";
+            serviceField.style.display = "none";
+
+            clientInput.disabled = true;
+            serviceSelect.disabled = true;
+
+            paymentForm.classList.add("expense-mode");
+        } else {
+            toggleSlider.classList.remove("expense");
+
+            incomeLabel.classList.add("active");
+            expenseLabel.classList.remove("active");
+
+            clientField.style.display = "";
+            serviceField.style.display = "";
+
+            clientInput.disabled = false;
+            serviceSelect.disabled = false;
+
+            paymentForm.classList.add("income-mode");
+        }
     }
-});
+
+
+    toggle.addEventListener("click", function (event) {
+        event.preventDefault();
+
+        if (paymentTypeSelect.value === "income") {
+            paymentTypeSelect.value = "expense";
+        } else {
+            paymentTypeSelect.value = "income";
+        }
+
+        updatePaymentTypeUI();
+    });
+
+
+    updatePaymentTypeUI();
 </script>
 
 {% endblock %}

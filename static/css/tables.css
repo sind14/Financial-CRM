@@ -30,6 +30,7 @@
     padding: 16px;
     text-align: left;
     border-bottom: 1px solid #2d2640;
+    vertical-align: middle;
 }
 
 .payments-table th {
@@ -82,6 +83,10 @@
     color: #f87171;
 }
 
+.amount.profit {
+    color: #a78bfa;
+}
+
 /* Empty State */
 .empty-payments {
     text-align: center !important;
@@ -104,6 +109,19 @@
     margin-left: 0;
 }
 
+.table-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.table-actions .btn-add-payment,
+.table-actions .btn-delete,
+.table-actions .btn-cancel {
+    margin-left: 0;
+}
+
 /* Clickable Table Rows */
 .clickable-row {
     cursor: pointer;
@@ -112,4 +130,84 @@
 .clickable-row:focus {
     outline: 2px solid #a78bfa;
     outline-offset: -2px;
+}
+
+/* Editable Table Layout & Values */
+.services-table,
+.expenses-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.services-table .col-service-name {
+    width: 48%;
+}
+
+.services-table .col-service-amount {
+    width: 28%;
+}
+
+.services-table .col-service-actions {
+    width: 24%;
+    min-width: 160px;
+    text-align: right;
+}
+
+.expenses-table .col-expense-name {
+    width: 36%;
+}
+
+.expenses-table .col-expense-amount {
+    width: 22%;
+}
+
+.expenses-table .col-expense-date {
+    width: 22%;
+    color: #a8a0b8;
+}
+
+.expenses-table .col-expense-actions {
+    width: 20%;
+    min-width: 160px;
+    text-align: right;
+}
+
+.service-value,
+.expense-value {
+    display: inline-flex;
+    align-items: center;
+    height: 38px;
+    padding: 0 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-family: inherit;
+    font-weight: 500;
+    color: #f3f4f6;
+    box-sizing: border-box;
+    vertical-align: middle;
+    margin: 0;
+    transition: 0.2s ease;
+    user-select: none;
+    max-width: 100%;
+}
+
+.service-value:hover,
+.expense-value:hover {
+    background-color: #211b2d;
+    border-color: #3b3050;
+    color: #c4b5fd;
+}
+
+.service-value.amount.expense,
+.expense-value.amount.expense {
+    color: #f87171;
+}
+
+.service-value.amount.expense:hover,
+.expense-value.amount.expense:hover {
+    background-color: #211b2d;
+    border-color: #3b3050;
+    color: #fca5a5;
 }

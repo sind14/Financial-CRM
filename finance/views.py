@@ -2,7 +2,7 @@ from decimal import Decimal
 from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
+from django.db.models import Sum, Count, Max
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -271,18 +271,7 @@ def payment_service_add_view(request):
             service.owner = request.user
             service.save()
 
-            return redirect("payment-services")
-    else:
-        form = PaymentServiceForm()
-
-    return render(
-        request,
-        "finance/payment_service_form.html",
-        {
-            "form": form,
-            "title": _("New Service"),
-        },
-    )
+    return redirect("payment-services")
 
 
 @login_required
@@ -298,19 +287,8 @@ def payment_service_edit_view(request, pk):
 
         if form.is_valid():
             form.save()
-            return redirect("payment-services")
-    else:
-        form = PaymentServiceForm(instance=service)
 
-    return render(
-        request,
-        "finance/payment_service_form.html",
-        {
-            "form": form,
-            "title": _("Edit Service"),
-            "service": service,
-        },
-    )
+    return redirect("payment-services")
 
 
 @login_required
@@ -350,17 +328,7 @@ def monthly_expenses_view(request):
 
 @login_required
 def monthly_expense_detail_view(request, pk):
-    monthly_expense = get_object_or_404(
-        MonthlyExpense,
-        pk=pk,
-        owner=request.user,
-    )
-
-    return render(
-        request,
-        "finance/monthly_expense_detail.html",
-        {"monthly_expense": monthly_expense},
-    )
+    return redirect("monthly-expenses")
 
 
 @login_required
@@ -387,19 +355,7 @@ def monthly_expense_add_view(request):
                 },
             )
 
-            return redirect("monthly-expenses")
-
-    else:
-        form = MonthlyExpenseForm()
-
-    return render(
-        request,
-        "finance/monthly_expense_form.html",
-        {
-            "form": form,
-            "title": _("New Monthly Expense"),
-        },
-    )
+    return redirect("monthly-expenses")
 
 
 @login_required
@@ -427,19 +383,7 @@ def monthly_expense_edit_view(request, pk):
                 service=expense.name,
             )
 
-            return redirect("monthly-expenses")
-
-    else:
-        form = MonthlyExpenseForm(instance=expense)
-
-    return render(
-        request,
-        "finance/monthly_expense_form.html",
-        {
-            "form": form,
-            "title": _("Edit Monthly Expense"),
-        },
-    )
+    return redirect("monthly-expenses")
 
 
 @login_required
@@ -466,18 +410,22 @@ def monthly_expense_delete_view(request, pk):
 
 @login_required
 def clients_view(request):
-    clients = Client.objects.filter(
-        owner=request.user
-    ).order_by("surname", "name")
-
-    form = ClientForm()
+    clients = (
+        Client.objects.filter(
+            owner=request.user
+        )
+        .annotate(
+            visits_count=Count("payments"),
+            last_visit=Max("payments__date"),
+            total_spent=Sum("payments__amount"),
+        ).order_by("surname", "name")
+    )
 
     return render(
         request,
         "finance/clients.html",
         {
             "clients": clients,
-            "form": form,
         },
     )
 
@@ -492,24 +440,25 @@ def client_add_view(request):
             client.owner = request.user
             client.save()
 
-            return redirect("clients")
-
-    else:
-        form = ClientForm()
-
-    return render(
-        request,
-        "finance/client_form.html",
-        {
-            "title": _("New Client"),
-            "form": form,
-        },
-    )
+    return redirect("clients")
 
 
 @login_required
 def client_detail_view(request, pk):
-    client = get_object_or_404(Client, pk=pk, owner=request.user)
+    client = get_object_or_404(
+        Client,
+        pk=pk,
+        owner=request.user,
+    )
+
+    if request.method == "POST":
+        form = ClientForm(request.POST, instance=client)
+
+        if form.is_valid():
+            form.save()
+            return redirect("client-detail", pk=client.pk)
+    else:
+        form = ClientForm(instance=client)
 
     payments = Payment.objects.filter(
         owner=request.user,
@@ -522,6 +471,7 @@ def client_detail_view(request, pk):
         "finance/client_detail.html",
         {
             "client": client,
+            "form": form,
             "payments": payments,
         },
     )
@@ -529,27 +479,7 @@ def client_detail_view(request, pk):
 
 @login_required
 def client_edit_view(request, pk):
-    client = get_object_or_404(Client, pk=pk, owner=request.user)
-
-    if request.method == "POST":
-        form = ClientForm(request.POST, instance=client)
-
-        if form.is_valid():
-            form.save()
-            return redirect("clients")
-
-    else:
-        form = ClientForm(instance=client)
-
-    return render(
-        request,
-        "finance/client_form.html",
-        {
-            "form": form,
-            "client": client,
-            "title": _("Edit Client"),
-        },
-    )
+    return redirect("client-detail", pk=pk)
 
 
 @login_required
