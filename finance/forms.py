@@ -56,6 +56,7 @@ class PaymentForm(forms.ModelForm):
         }
         widgets = {
             "service_option": PaymentServiceSelect(),
+            "date": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
         }
 
     def __init__(self, *args, user=None, **kwargs):
@@ -73,7 +74,25 @@ class PaymentForm(forms.ModelForm):
             )
 
         if not self.instance.pk:
-            self.fields["date"].initial = timezone.localdate()
+            self.initial["date"] = timezone.localdate().isoformat()
+            self.initial["payment_type"] = Payment.PaymentType.INCOME
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        client = cleaned_data.get("client")
+        payment_type = cleaned_data.get("payment_type")
+
+        if (
+                client is not None
+                and payment_type == Payment.PaymentType.EXPENSE
+        ):
+            self.add_error(
+                "payment_type",
+                _("Expenses cannot be assigned to a client."),
+            )
+
+        return cleaned_data
 
 
 class MonthlyExpenseForm(forms.ModelForm):

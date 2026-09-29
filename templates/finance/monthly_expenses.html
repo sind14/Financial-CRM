@@ -1,44 +1,142 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n l10n %}
 
 {% block content %}
 <div class="payments-section">
 
     <div class="payments-header">
-        <a href="{% url 'monthly-expense-add' %}" class="btn-add-payment">
+        <button type="button" class="btn-add-payment" id="btn-add-expense">
             {% translate "New expense" %}
-        </a>
+        </button>
     </div>
 
     <div class="table-wrapper">
+        <form id="new-expense-form" method="post" action="{% url 'monthly-expense-add' %}">
+            {% csrf_token %}
+        </form>
 
-        <table class="payments-table">
+        <table class="payments-table expenses-table">
 
             <thead>
             <tr>
-                <th>{% translate "Name" %}</th>
-                <th>{% translate "Amount" %}</th>
+                <th class="col-expense-name">{% translate "Name" %}</th>
+                <th class="col-expense-amount">{% translate "Amount" %}</th>
+                <th class="col-expense-date">{% translate "Created" %}</th>
+                <th class="col-expense-actions"></th>
             </tr>
             </thead>
 
             <tbody>
+            <tr id="new-expense-row" hidden>
+                <td class="col-expense-name">
+                    <input
+                        form="new-expense-form"
+                        type="text"
+                        name="name"
+                        id="new-expense-name-input"
+                        class="table-edit-input"
+                        placeholder="{% translate 'Name' %}"
+                        required
+                    >
+                </td>
+                <td class="col-expense-amount">
+                    <input
+                        form="new-expense-form"
+                        type="number"
+                        step="0.01"
+                        name="amount"
+                        id="new-expense-amount-input"
+                        class="table-edit-input expense"
+                        placeholder="0.00"
+                        required
+                    >
+                </td>
+                <td class="col-expense-date">
+                    —
+                </td>
+                <td class="col-expense-actions">
+                    <div class="table-actions">
+                        <button
+                            form="new-expense-form"
+                            type="submit"
+                            class="btn-add-payment btn-sm"
+                        >
+                            {% translate "Save" %}
+                        </button>
+                        <button
+                            type="button"
+                            class="btn-cancel btn-sm"
+                            id="cancel-new-expense-btn"
+                        >
+                            {% translate "Cancel" %}
+                        </button>
+                    </div>
+                </td>
+            </tr>
 
             {% for expense in monthly_expenses %}
 
-            <tr
-                    class="clickable-row"
-                    data-url="{% url 'monthly-expense-detail' expense.pk %}"
-                    tabindex="0"
-                    role="link"
-            >
-                <td>{{ expense.name }}</td>
-                <td>-{{ expense.amount|floatformat:2 }} zł</td>
+            <form id="expense-form-{{ expense.pk }}" method="post" action="{% url 'monthly-expense-edit' expense.pk %}">
+                {% csrf_token %}
+            </form>
+            <tr>
+                <td class="col-expense-name">
+                    <span class="expense-value" data-expense-id="{{ expense.pk }}" data-field="name">{{ expense.name }}</span>
+                    <input
+                        form="expense-form-{{ expense.pk }}"
+                        type="text"
+                        name="name"
+                        value="{{ expense.name }}"
+                        class="table-edit-input"
+                        data-expense-id="{{ expense.pk }}"
+                        hidden
+                        required
+                    >
+                </td>
+                <td class="col-expense-amount">
+                    <span class="expense-value amount expense" data-expense-id="{{ expense.pk }}" data-field="amount">-{{ expense.amount|floatformat:2 }} zł</span>
+                    <input
+                        form="expense-form-{{ expense.pk }}"
+                        type="number"
+                        step="0.01"
+                        name="amount"
+                        value="{{ expense.amount|unlocalize }}"
+                        class="table-edit-input expense"
+                        data-expense-id="{{ expense.pk }}"
+                        hidden
+                        required
+                    >
+                </td>
+                <td class="col-expense-date">
+                    {{ expense.created_at|date:"d M Y" }}
+                </td>
+                <td class="col-expense-actions">
+                    <div class="table-actions">
+                        <button
+                            form="expense-form-{{ expense.pk }}"
+                            type="submit"
+                            class="btn-add-payment btn-sm"
+                            id="expense-save-btn-{{ expense.pk }}"
+                            hidden
+                        >
+                            {% translate "Save" %}
+                        </button>
+                        <a
+                            href="{% url 'monthly-expense-delete' expense.pk %}"
+                            class="btn-delete btn-sm"
+                            id="expense-delete-btn-{{ expense.pk }}"
+                            hidden
+                        >
+                            {% translate "Delete" %}
+                        </a>
+                    </div>
+                </td>
             </tr>
 
             {% empty %}
 
-            <tr>
-                <td colspan="2" class="empty-payments">
+            <tr id="empty-expenses-row">
+                <td colspan="4" class="empty-payments">
                     {% translate "No monthly expenses yet." %}
                 </td>
             </tr>
@@ -54,16 +152,65 @@
 </div>
 
 <script>
-    document.querySelectorAll(".clickable-row").forEach((row) => {
-        row.addEventListener("click", () => {
-            window.location.href = row.dataset.url;
-        });
+    document.addEventListener("DOMContentLoaded", function () {
+        const addBtn = document.getElementById("btn-add-expense");
+        const newRow = document.getElementById("new-expense-row");
+        const cancelBtn = document.getElementById("cancel-new-expense-btn");
+        const emptyRow = document.getElementById("empty-expenses-row");
+        const nameInput = document.getElementById("new-expense-name-input");
+        const amountInput = document.getElementById("new-expense-amount-input");
 
-        row.addEventListener("keydown", (event) => {
-            if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                row.click();
-            }
+        if (addBtn && newRow) {
+            addBtn.addEventListener("click", () => {
+                newRow.hidden = false;
+                if (emptyRow) emptyRow.hidden = true;
+                if (nameInput) nameInput.focus();
+            });
+        }
+
+        if (cancelBtn && newRow) {
+            cancelBtn.addEventListener("click", () => {
+                newRow.hidden = true;
+                if (nameInput) nameInput.value = "";
+                if (amountInput) amountInput.value = "";
+                if (emptyRow) {
+                    const expenseRows = document.querySelectorAll("tbody tr:not(#new-expense-row):not(#empty-expenses-row)");
+                    if (expenseRows.length === 0) {
+                        emptyRow.hidden = false;
+                    }
+                }
+            });
+        }
+
+        const values = document.querySelectorAll(".expense-value");
+
+        values.forEach((value) => {
+            value.addEventListener("click", () => {
+                const expenseId = value.dataset.expenseId;
+                const fieldName = value.dataset.field;
+                const input = document.querySelector(
+                    `.table-edit-input[data-expense-id="${expenseId}"][name="${fieldName}"]`
+                );
+                const saveButton = document.getElementById(
+                    `expense-save-btn-${expenseId}`
+                );
+                const deleteButton = document.getElementById(
+                    `expense-delete-btn-${expenseId}`
+                );
+
+                if (input) {
+                    value.hidden = true;
+                    input.hidden = false;
+                    input.focus();
+
+                    if (saveButton) {
+                        saveButton.hidden = false;
+                    }
+                    if (deleteButton) {
+                        deleteButton.hidden = false;
+                    }
+                }
+            });
         });
     });
 </script>

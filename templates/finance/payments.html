@@ -15,37 +15,28 @@
             <thead>
             <tr>
                 <th>{% translate "Date" %}</th>
-                <th>{% translate "Service" %}</th>
                 <th>{% translate "Client" %}</th>
+                <th>{% translate "Service" %}</th>
                 <th>{% translate "Description" %}</th>
-                <th>{% translate "Type" %}</th>
                 <th>{% translate "Amount" %}</th>
-                <th>{% translate "Actions" %}</th>
             </tr>
             </thead>
 
             <tbody>
             {% for payment in payments %}
-            <tr>
+            <tr
+                class="clickable-row"
+                data-url="{% url 'payment-edit' payment.pk %}"
+                tabindex="0"
+                role="link"
+            >
                 <td>{{ payment.date }}</td>
-
-                <td>{{ payment.service }}</td>
 
                 <td>{{ payment.client|default:"—" }}</td>
 
-                <td>{{ payment.description|default:"—" }}</td>
+                <td>{{ payment.service }}</td>
 
-                <td>
-                    {% if payment.payment_type == "income" %}
-                    <span class="payment-type income">
-                        {% translate "Income" %}
-                    </span>
-                    {% else %}
-                    <span class="payment-type expense">
-                        {% translate "Expense" %}
-                    </span>
-                    {% endif %}
-                </td>
+                <td>{{ payment.description|default:"—" }}</td>
 
                 <td>
                     {% if payment.payment_type == "income" %}
@@ -58,24 +49,12 @@
                     </span>
                     {% endif %}
                 </td>
-
-                <td>
-                    <div class="payment-actions">
-                        <a href="{% url 'payment-edit' payment.pk %}" class="btn-edit">
-                            {% translate "Edit" %}
-                        </a>
-
-                        <a href="{% url 'payment-delete' payment.pk %}" class="btn-delete">
-                            {% translate "Delete" %}
-                        </a>
-                    </div>
-                </td>
             </tr>
 
             {% empty %}
 
             <tr>
-                <td colspan="7" class="empty-payments">
+                <td colspan="5" class="empty-payments">
                     {% translate "No payments yet." %}
                 </td>
             </tr>
@@ -86,4 +65,19 @@
     </div>
 
 </div>
+
+<script>
+    document.querySelectorAll(".clickable-row").forEach((row) => {
+        row.addEventListener("click", () => {
+            window.location.href = row.dataset.url;
+        });
+
+        row.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                row.click();
+            }
+        });
+    });
+</script>
 {% endblock %}
