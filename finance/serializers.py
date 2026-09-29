@@ -11,7 +11,7 @@ class PaymentSerializer(serializers.ModelSerializer):
             "amount",
             "payment_type",
             "date",
-            "category",
+            "service",
             "description",
             "created_at",
         )

@@ -10,7 +10,7 @@ class Payment(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_type = models.CharField(max_length=7, choices=PaymentType.choices)
     date = models.DateField()
-    category = models.CharField(max_length=100)
+    service = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     monthly_expense = models.ForeignKey(
@@ -34,8 +34,8 @@ class Payment(models.Model):
         null=True,
         blank=True,
     )
-    category_option = models.ForeignKey(
-        "PaymentCategory",
+    service_option = models.ForeignKey(
+        "PaymentService",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -43,10 +43,10 @@ class Payment(models.Model):
     )
 
     def __str__(self):
-        return f"{self.get_payment_type_display()}: {self.amount} — {self.category}"
+        return f"{self.get_payment_type_display()}: {self.amount} — {self.service}"
 
 
-class PaymentCategory(models.Model):
+class PaymentService(models.Model):
     name = models.CharField(max_length=100)
     default_amount = models.DecimalField(
         max_digits=10,
@@ -55,7 +55,7 @@ class PaymentCategory(models.Model):
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
-        related_name="payment_categories",
+        related_name="payment_services",
         null=True,
         blank=True,
     )

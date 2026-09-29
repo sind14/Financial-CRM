@@ -16,8 +16,8 @@
             </div>
 
             <div class="form-field">
-                {{ form.category_option.label_tag }}
-                {{ form.category_option }}
+                {{ form.service_option.label_tag }}
+                {{ form.service_option }}
             </div>
 
             <div class="form-field">
@@ -54,10 +54,10 @@
 </div>
 
 <script>
-const categorySelect = document.getElementById("id_category_option");
+const serviceSelect = document.getElementById("id_service_option");
 const amountInput = document.getElementById("id_amount");
 
-categorySelect.addEventListener("change", function () {
+serviceSelect.addEventListener("change", function () {
     const selectedOption = this.options[this.selectedIndex];
     const defaultAmount = selectedOption.dataset.defaultAmount;
 

@@ -15,7 +15,7 @@
             <thead>
             <tr>
                 <th>{% translate "Date" %}</th>
-                <th>{% translate "Category" %}</th>
+                <th>{% translate "Service" %}</th>
                 <th>{% translate "Client" %}</th>
                 <th>{% translate "Description" %}</th>
                 <th>{% translate "Type" %}</th>
@@ -29,7 +29,7 @@
             <tr>
                 <td>{{ payment.date }}</td>
 
-                <td>{{ payment.category }}</td>
+                <td>{{ payment.service }}</td>
 
                 <td>{{ payment.client|default:"—" }}</td>
 

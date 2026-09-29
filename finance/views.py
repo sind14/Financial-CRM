@@ -9,8 +9,8 @@ from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from finance.forms import MonthlyExpenseForm, PaymentForm, ClientForm, PaymentCategoryForm
-from finance.models import Client, MonthlyExpense, Payment, PaymentCategory
+from finance.forms import MonthlyExpenseForm, PaymentForm, ClientForm, PaymentServiceForm
+from finance.models import Client, MonthlyExpense, Payment, PaymentService
 from finance.serializers import ClientSerializer, PaymentSerializer
 
 
@@ -180,8 +180,8 @@ def payment_add_view(request):
             payment = form.save(commit=False)
             payment.owner = request.user
 
-            if payment.category_option:
-                payment.category = payment.category_option.name
+            if payment.service_option:
+                payment.service = payment.service_option.name
 
             payment.save()
 
@@ -208,8 +208,8 @@ def payment_edit_view(request, pk):
         if form.is_valid():
             payment = form.save(commit=False)
 
-            if payment.category_option:
-                payment.category = payment.category_option.name
+            if payment.service_option:
+                payment.service = payment.service_option.name
 
             payment.save()
 
@@ -239,97 +239,97 @@ def payment_delete_view(request, pk):
         request,
         "finance/confirm_delete.html",
         {
-            "object": f"{payment.amount} — {payment.category}",
+            "object": f"{payment.amount} — {payment.service}",
             "cancel_url": "payments",
         },
     )
 
 
 @login_required
-def payment_categories_view(request):
-    categories = PaymentCategory.objects.filter(
+def payment_services_view(request):
+    services = PaymentService.objects.filter(
         owner=request.user,
     ).order_by("name")
 
     return render(
         request,
-        "finance/payment_categories.html",
+        "finance/payment_services.html",
         {
-            "categories": categories,
+            "services": services,
         },
     )
 
 
 @login_required
-def payment_category_add_view(request):
+def payment_service_add_view(request):
     if request.method == "POST":
-        form = PaymentCategoryForm(request.POST)
+        form = PaymentServiceForm(request.POST)
 
         if form.is_valid():
-            category = form.save(commit=False)
-            category.owner = request.user
-            category.save()
+            service = form.save(commit=False)
+            service.owner = request.user
+            service.save()
 
-            return redirect("payment-categories")
+            return redirect("payment-services")
     else:
-        form = PaymentCategoryForm()
+        form = PaymentServiceForm()
 
     return render(
         request,
-        "finance/payment_category_form.html",
+        "finance/payment_service_form.html",
         {
             "form": form,
-            "title": _("New Payment Category"),
+            "title": _("New Service"),
         },
     )
 
 
 @login_required
-def payment_category_edit_view(request, pk):
-    category = get_object_or_404(
-        PaymentCategory,
+def payment_service_edit_view(request, pk):
+    service = get_object_or_404(
+        PaymentService,
         pk=pk,
         owner=request.user,
     )
 
     if request.method == "POST":
-        form = PaymentCategoryForm(request.POST, instance=category)
+        form = PaymentServiceForm(request.POST, instance=service)
 
         if form.is_valid():
             form.save()
-            return redirect("payment-categories")
+            return redirect("payment-services")
     else:
-        form = PaymentCategoryForm(instance=category)
+        form = PaymentServiceForm(instance=service)
 
     return render(
         request,
-        "finance/payment_category_form.html",
+        "finance/payment_service_form.html",
         {
             "form": form,
-            "title": _("Edit Payment Category"),
-            "category": category,
+            "title": _("Edit Service"),
+            "service": service,
         },
     )
 
 
 @login_required
-def payment_category_delete_view(request, pk):
-    category = get_object_or_404(
-        PaymentCategory,
+def payment_service_delete_view(request, pk):
+    service = get_object_or_404(
+        PaymentService,
         pk=pk,
         owner=request.user,
     )
 
     if request.method == "POST":
-        category.delete()
-        return redirect("payment-categories")
+        service.delete()
+        return redirect("payment-services")
 
     return render(
         request,
         "finance/confirm_delete.html",
         {
-            "object": category,
-            "cancel_url": "payment-categories",
+            "object": service,
+            "cancel_url": "payment-services",
         },
     )
 
@@ -380,7 +380,7 @@ def monthly_expense_add_view(request):
                 defaults={
                     "amount": monthly_expense.amount,
                     "payment_type": Payment.PaymentType.EXPENSE,
-                    "category": monthly_expense.name,
+                    "service": monthly_expense.name,
                     "description": "Monthly Expense",
                     "owner": request.user,
                 },
@@ -423,7 +423,7 @@ def monthly_expense_edit_view(request, pk):
                 owner=request.user,
             ).update(
                 amount=expense.amount,
-                category=expense.name,
+                service=expense.name,
             )
 
             return redirect("monthly-expenses")

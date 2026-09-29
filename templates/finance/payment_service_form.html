@@ -25,15 +25,15 @@
         </button>
 
         <a
-                href="{% url 'payment-categories' %}"
+                href="{% url 'payment-services' %}"
                 class="btn-cancel"
         >
             {% translate "Cancel" %}
         </a>
 
-        {% if category %}
+        {% if service %}
             <a
-                    href="{% url 'payment-category-delete' category.pk %}"
+                    href="{% url 'payment-service-delete' service.pk %}"
                     class="btn-delete"
             >
                 {% translate "Delete" %}
