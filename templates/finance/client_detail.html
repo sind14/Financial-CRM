@@ -17,17 +17,17 @@
         </a>
 
         <a
-            href="{% url 'client-delete' client.pk %}"
-            class="btn-delete"
-        >
-            {% translate "Delete" %}
-        </a>
-
-        <a
             href="{% url 'clients' %}"
             class="btn-cancel"
         >
             {% translate "Back" %}
+        </a>
+
+        <a
+            href="{% url 'client-delete' client.pk %}"
+            class="btn-delete"
+        >
+            {% translate "Delete" %}
         </a>
     </div>
 </div>

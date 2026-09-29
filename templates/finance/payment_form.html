@@ -48,6 +48,15 @@
                 <a href="{% url 'payments' %}" class="btn-cancel">
                     {% translate "Cancel" %}
                 </a>
+
+                {% if payment %}
+                    <a
+                        href="{% url 'payment-delete' payment.pk %}"
+                        class="btn-delete"
+                    >
+                        {% translate "Delete" %}
+                    </a>
+                {% endif %}
             </div>
         </form>
     </div>

@@ -37,19 +37,18 @@
         </a>
 
         <a
-            href="{% url 'monthly-expense-delete' monthly_expense.pk %}"
-            class="btn-delete"
-        >
-            {% translate "Delete" %}
-        </a>
-
-        <a
             href="{% url 'monthly-expenses' %}"
             class="btn-cancel"
         >
             {% translate "Back" %}
         </a>
 
+        <a
+            href="{% url 'monthly-expense-delete' monthly_expense.pk %}"
+            class="btn-delete"
+        >
+            {% translate "Delete" %}
+        </a>
     </div>
 </div>
 

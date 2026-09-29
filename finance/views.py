@@ -223,6 +223,7 @@ def payment_edit_view(request, pk):
         "finance/payment_form.html",
         {
             "form": form,
+            "payment": payment,
             "title": _("Edit Payment"),
         },
     )
