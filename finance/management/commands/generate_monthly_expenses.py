@@ -20,7 +20,7 @@ class Command(BaseCommand):
                 defaults={
                     "amount": expense.amount,
                     "payment_type": Payment.PaymentType.EXPENSE,
-                    "category": expense.name,
+                    "service": expense.name,
                     "description": "Автоматично створена щомісячна витрата",
                     "owner": expense.owner,
                 },

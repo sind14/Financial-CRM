@@ -5,9 +5,9 @@ from finance.models import Client, MonthlyExpense, Payment
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ("amount", "payment_type", "date", "category")
+    list_display = ("amount", "payment_type", "date", "service")
     list_filter = ("payment_type", "date")
-    search_fields = ("category", "description")
+    search_fields = ("service", "description")
 
 
 @admin.register(MonthlyExpense)

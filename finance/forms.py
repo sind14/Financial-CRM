@@ -1,10 +1,10 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from finance.models import Client, MonthlyExpense, Payment, PaymentCategory
+from finance.models import Client, MonthlyExpense, Payment, PaymentService
 
 
-class PaymentCategorySelect(forms.Select):
+class PaymentServiceSelect(forms.Select):
     def create_option(
         self,
         name,
@@ -42,7 +42,7 @@ class PaymentForm(forms.ModelForm):
             "amount",
             "payment_type",
             "date",
-            "category_option",
+            "service_option",
             "description",
             "client",
         )
@@ -50,12 +50,12 @@ class PaymentForm(forms.ModelForm):
             "amount": _("Amount"),
             "payment_type": _("Payment type"),
             "date": _("Date"),
-            "category_option": _("Category"),
+            "service_option": _("Service"),
             "description": _("Description"),
             "client": _("Client"),
         }
         widgets = {
-            "category_option": PaymentCategorySelect(),
+            "service_option": PaymentServiceSelect(),
         }
 
     def __init__(self, *args, user=None, **kwargs):
@@ -66,8 +66,8 @@ class PaymentForm(forms.ModelForm):
                 owner=user
             ).order_by("surname", "name")
 
-            self.fields["category_option"].queryset = (
-                PaymentCategory.objects.filter(
+            self.fields["service_option"].queryset = (
+                PaymentService.objects.filter(
                     owner=user
                 ).order_by("name")
             )
@@ -104,9 +104,9 @@ class ClientForm(forms.ModelForm):
         }
 
 
-class PaymentCategoryForm(forms.ModelForm):
+class PaymentServiceForm(forms.ModelForm):
     class Meta:
-        model = PaymentCategory
+        model = PaymentService
         fields = (
             "name",
             "default_amount",

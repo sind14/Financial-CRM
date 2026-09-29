@@ -4,8 +4,8 @@
 {% block content %}
 <div class="payments-section">
     <div class="payments-header">
-        <a href="{% url 'payment-category-add' %}" class="btn-add-payment">
-            {% translate "New category" %}
+        <a href="{% url 'payment-service-add' %}" class="btn-add-payment">
+            {% translate "New service" %}
         </a>
     </div>
 
@@ -14,24 +14,24 @@
             <thead>
             <tr>
                 <th>{% translate "Name" %}</th>
-                <th>{% translate "Default amount" %}</th>
+                <th>{% translate "Amount" %}</th>
             </tr>
             </thead>
 
             <tbody>
-            {% for category in categories %}
+            {% for service in services %}
             <tr
                     class="clickable-row"
-                    data-url="{% url 'payment-category-edit' category.pk %}"
+                    data-url="{% url 'payment-service-edit' service.pk %}"
                     tabindex="0"
                     role="link">
-                <td>{{ category.name }}</td>
-                <td>{{ category.default_amount }}</td>
+                <td>{{ service.name }}</td>
+                <td>{{ service.default_amount }} zl</td>
             </tr>
             {% empty %}
             <tr>
                 <td colspan="2" class="empty-payments">
-                    {% translate "No payment categories yet." %}
+                    {% translate "No payment services yet." %}
                 </td>
             </tr>
             {% endfor %}
