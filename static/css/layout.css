@@ -116,3 +116,52 @@ main {
     border-color: #8067aa;
     background: #211c2c;
 }
+
+@media (max-width: 768px) {
+    .app-layout {
+        display: block !important;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-width: 0;
+        min-height: auto;
+        padding: 16px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar-logo {
+        margin-bottom: 16px;
+        padding: 0 4px;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 8px;
+        padding-bottom: 2px;
+    }
+
+    .sidebar-nav a {
+        flex: 0 0 auto;
+        padding: 9px 12px;
+        white-space: nowrap;
+    }
+
+    .navbar {
+        padding: 12px 16px !important;
+    }
+
+    .navbar-actions {
+        gap: 8px;
+    }
+
+    .language-form select {
+        width: 112px;
+    }
+
+    main .container-fluid {
+        padding: 20px 16px !important;
+    }
+}

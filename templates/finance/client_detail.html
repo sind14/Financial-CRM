@@ -6,6 +6,10 @@
     <form method="post" id="client-form" class="client-card-form">
         {% csrf_token %}
 
+        {% if form.non_field_errors %}
+            <div class="form-error">{{ form.non_field_errors }}</div>
+        {% endif %}
+
         <div class="client-fields">
             <div class="client-field">
                 <span class="client-value" data-field="name">
@@ -19,6 +23,7 @@
                     class="client-edit-input"
                     hidden
                     required
+                    maxlength="100"
                 >
             </div>
 
@@ -34,6 +39,7 @@
                     class="client-edit-input"
                     hidden
                     required
+                    maxlength="100"
                 >
             </div>
 
@@ -49,7 +55,12 @@
                     class="client-edit-input"
                     placeholder="{% translate 'Phone' %}"
                     hidden
+                    maxlength="20"
                 >
+
+                {% if form.phone.errors %}
+                    <div class="form-error">{{ form.phone.errors }}</div>
+                {% endif %}
             </div>
         </div>
 

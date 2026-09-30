@@ -6,6 +6,7 @@
 <div class="payments-section">
 
     <div class="payments-header">
+        <h1>{% translate "Clients" %}</h1>
         <button type="button" class="btn-add-payment" id="btn-add-client">
             {% translate "New client" %}
         </button>
@@ -41,6 +42,7 @@
                             id="new-client-name-input"
                             class="table-edit-input"
                             placeholder="{% translate 'Name' %}"
+                            maxlength="100"
                             required
                         >
                         <input
@@ -50,6 +52,7 @@
                             id="new-client-surname-input"
                             class="table-edit-input"
                             placeholder="{% translate 'Surname' %}"
+                            maxlength="100"
                             required
                         >
                     </div>
@@ -62,6 +65,7 @@
                         id="new-client-phone-input"
                         class="table-edit-input"
                         placeholder="{% translate 'Phone' %}"
+                            maxlength="20"
                     >
                 </td>
                 <td>—</td>

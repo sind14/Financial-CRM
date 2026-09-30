@@ -10,28 +10,108 @@
         <form method="post">
             {% csrf_token %}
 
+            {% if form.non_field_errors %}
+                <div class="form-error">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <!-- Client -->
             <div class="form-field" id="client-field">
                 {{ form.client.label_tag }}
-                {{ form.client }}
+
+                <div class="client-autocomplete">
+                    <input
+                        type="text"
+                        id="client-search"
+                        class="client-search-input"
+                        placeholder="{% translate 'Search client...' %}"
+                        autocomplete="off"
+                    >
+
+                    <div id="client-results" class="client-results"></div>
+
+                    <button
+                        type="button"
+                        id="create-client-btn"
+                        class="create-client-btn"
+                    >
+                        + {% translate "Create new client" %}
+                    </button>
+                </div>
+
+                <div class="selected-client" id="selected-client">
+                    <span id="selected-client-name"></span>
+                    <button type="button" id="clear-client" class="clear-client">×</button>
+                </div>
+
+                <div class="hidden-client-field">
+                    {{ form.client }}
+                </div>
+
+                {% if form.client.errors %}
+                    <div class="form-error">{{ form.client.errors }}</div>
+                {% endif %}
             </div>
 
+            <!-- New client -->
+            <div class="new-client-form" id="new-client-form" style="display:none;">
+                <div class="form-field">
+                    <label for="new-client-name">{% translate "Name" %}</label>
+                    <input type="text" id="new-client-name">
+                </div>
+
+                <div class="form-field">
+                    <label for="new-client-surname">{% translate "Surname" %}</label>
+                    <input type="text" id="new-client-surname">
+                </div>
+
+                <div class="form-field">
+                    <label for="new-client-phone">{% translate "Phone" %}</label>
+                    <input type="text" id="new-client-phone">
+                </div>
+
+                <div class="new-client-actions">
+                    <button type="button" id="save-new-client" class="btn-add-payment">
+                        {% translate "Create client" %}
+                    </button>
+                    <button type="button" id="cancel-new-client" class="btn-cancel">
+                        {% translate "Cancel" %}
+                    </button>
+                </div>
+
+                <div id="new-client-error" class="form-error"></div>
+            </div>
+
+            <!-- Service -->
             <div class="form-field" id="service-field">
                 {{ form.service_option.label_tag }}
                 {{ form.service_option }}
+                {% if form.service_option.errors %}
+                    <div class="form-error">{{ form.service_option.errors }}</div>
+                {% endif %}
             </div>
 
+            <!-- Amount -->
             <div class="form-field">
                 {{ form.amount.label_tag }}
                 {{ form.amount }}
+                {% if form.amount.errors %}
+                    <div class="form-error">{{ form.amount.errors }}</div>
+                {% endif %}
             </div>
 
+            <!-- Payment type -->
             <div class="payment-type-field">
                 <div class="payment-type-toggle">
                     <span class="payment-type-label income-label">
                         {% translate "Income" %}
                     </span>
 
-                    <label class="toggle">
+                    <label
+                        class="toggle"
+                        tabindex="0"
+                        role="switch"
+                        aria-label="{% translate 'Payment type' %}"
+                    >
                         {{ form.payment_type }}
                         <span class="toggle-slider"></span>
                     </label>
@@ -42,22 +122,29 @@
                 </div>
 
                 {% if form.payment_type.errors %}
-                    <div class="form-error">
-                        {{ form.payment_type.errors }}
-                    </div>
+                    <div class="form-error">{{ form.payment_type.errors }}</div>
                 {% endif %}
             </div>
 
+            <!-- Description -->
             <div class="form-field">
                 {{ form.description.label_tag }}
                 {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="form-error">{{ form.description.errors }}</div>
+                {% endif %}
             </div>
 
+            <!-- Date -->
             <div class="form-field">
                 {{ form.date.label_tag }}
                 {{ form.date }}
+                {% if form.date.errors %}
+                    <div class="form-error">{{ form.date.errors }}</div>
+                {% endif %}
             </div>
 
+            <!-- Actions -->
             <div class="form-actions">
                 <button type="submit" class="btn-add-payment">
                     {% translate "Save" %}
@@ -68,10 +155,7 @@
                 </a>
 
                 {% if payment %}
-                    <a
-                        href="{% url 'payment-delete' payment.pk %}"
-                        class="btn-delete"
-                    >
+                    <a href="{% url 'payment-delete' payment.pk %}" class="btn-delete">
                         {% translate "Delete" %}
                     </a>
                 {% endif %}
@@ -80,84 +164,286 @@
     </div>
 </div>
 
+
 <script>
-    const paymentForm = document.querySelector(".payment-form");
+const paymentForm = document.querySelector(".payment-form");
+const serviceSelect = document.getElementById("id_service_option");
+const serviceField = document.getElementById("service-field");
+const amountInput = document.getElementById("id_amount");
 
-    const serviceSelect = document.getElementById("id_service_option");
-    const serviceField = document.getElementById("service-field");
-    const amountInput = document.getElementById("id_amount");
+const clientField = document.getElementById("client-field");
+const clientInput = document.getElementById("id_client");
+const clientSearch = document.getElementById("client-search");
+const clientResults = document.getElementById("client-results");
+const clientAutocomplete = document.querySelector(".client-autocomplete");
+const createClientBtn = document.getElementById("create-client-btn");
 
-    const clientField = document.getElementById("client-field");
-    const clientInput = document.getElementById("id_client");
+const selectedClient = document.getElementById("selected-client");
+const selectedClientName = document.getElementById("selected-client-name");
+const clearClientBtn = document.getElementById("clear-client");
 
-    const paymentTypeSelect = document.getElementById("id_payment_type");
+const newClientForm = document.getElementById("new-client-form");
+const newClientName = document.getElementById("new-client-name");
+const newClientSurname = document.getElementById("new-client-surname");
+const newClientPhone = document.getElementById("new-client-phone");
+const saveNewClientBtn = document.getElementById("save-new-client");
+const cancelNewClientBtn = document.getElementById("cancel-new-client");
+const newClientError = document.getElementById("new-client-error");
 
-    const toggle = document.querySelector(".toggle");
-    const toggleSlider = document.querySelector(".toggle-slider");
+const paymentTypeSelect = document.getElementById("id_payment_type");
+const toggle = document.querySelector(".toggle");
+const toggleSlider = document.querySelector(".toggle-slider");
+const incomeLabel = document.querySelector(".income-label");
+const expenseLabel = document.querySelector(".expense-label");
 
-    const incomeLabel = document.querySelector(".income-label");
-    const expenseLabel = document.querySelector(".expense-label");
-
-
-    serviceSelect.addEventListener("change", function () {
-        const selectedOption = this.options[this.selectedIndex];
-        const defaultAmount = selectedOption.dataset.defaultAmount;
-
-        if (defaultAmount) {
-            amountInput.value = defaultAmount;
-        }
-    });
+let searchTimeout;
 
 
-    function updatePaymentTypeUI() {
-        const isExpense = paymentTypeSelect.value === "expense";
+/* Service → default amount */
+serviceSelect.addEventListener("change", function () {
+    const option = this.options[this.selectedIndex];
+    const amount = option.dataset.defaultAmount;
 
-        paymentForm.classList.remove("income-mode", "expense-mode");
+    if (amount) amountInput.value = amount;
+});
 
-        if (isExpense) {
-            toggleSlider.classList.add("expense");
 
-            incomeLabel.classList.remove("active");
-            expenseLabel.classList.add("active");
+/* Client search */
+clientSearch.addEventListener("input", function () {
+    const query = this.value.trim();
 
-            clientField.style.display = "none";
-            serviceField.style.display = "none";
+    clearTimeout(searchTimeout);
+    clientResults.innerHTML = "";
+    clientResults.style.display = "none";
+    createClientBtn.style.display = "none";
 
-            clientInput.disabled = true;
-            serviceSelect.disabled = true;
+    if (!query) return;
 
-            paymentForm.classList.add("expense-mode");
+    searchTimeout = setTimeout(() => searchClients(query), 250);
+});
+
+
+async function searchClients(query) {
+    try {
+        const response = await fetch(
+            `{% url 'payment-client-search' %}?q=${encodeURIComponent(query)}`
+        );
+
+        const data = await response.json();
+        clientResults.innerHTML = "";
+
+        if (data.clients.length) {
+            data.clients.forEach(client => {
+                const item = document.createElement("div");
+                item.className = "client-result";
+
+                item.innerHTML = `
+                    <div class="client-result-name">
+                        ${escapeHtml(client.name)} ${escapeHtml(client.surname)}
+                    </div>
+                    ${client.phone ? `
+                        <div class="client-result-phone">
+                            ${escapeHtml(client.phone)}
+                        </div>
+                    ` : ""}
+                `;
+
+                item.addEventListener("click", () => selectClient(client));
+                clientResults.appendChild(item);
+            });
+
+            clientResults.style.display = "block";
         } else {
-            toggleSlider.classList.remove("expense");
-
-            incomeLabel.classList.add("active");
-            expenseLabel.classList.remove("active");
-
-            clientField.style.display = "";
-            serviceField.style.display = "";
-
-            clientInput.disabled = false;
-            serviceSelect.disabled = false;
-
-            paymentForm.classList.add("income-mode");
+            createClientBtn.style.display = "inline-block";
         }
+    } catch (error) {
+        console.error("Client search error:", error);
     }
+}
 
 
-    toggle.addEventListener("click", function (event) {
-        event.preventDefault();
+/* Select client */
+function selectClient(client) {
+    clientInput.value = client.id;
 
-        if (paymentTypeSelect.value === "income") {
-            paymentTypeSelect.value = "expense";
-        } else {
-            paymentTypeSelect.value = "income";
+    selectedClientName.textContent =
+        `${client.name} ${client.surname}`;
+
+    clientAutocomplete.style.display = "none";
+    selectedClient.classList.add("visible");
+
+    clientResults.innerHTML = "";
+    clientResults.style.display = "none";
+    createClientBtn.style.display = "none";
+    newClientForm.style.display = "none";
+}
+
+
+/* Clear client */
+clearClientBtn.addEventListener("click", () => {
+    clientInput.value = "";
+
+    selectedClient.classList.remove("visible");
+    selectedClientName.textContent = "";
+
+    clientAutocomplete.style.display = "";
+
+    clientSearch.value = "";
+    clientSearch.focus();
+});
+
+
+/* Open new client form */
+createClientBtn.addEventListener("click", () => {
+    const parts = clientSearch.value.trim().split(/\s+/);
+
+    newClientName.value = parts[0] || "";
+    newClientSurname.value = parts.slice(1).join(" ");
+
+    newClientForm.style.display = "block";
+    clientResults.style.display = "none";
+    createClientBtn.style.display = "none";
+
+    newClientSurname.focus();
+});
+
+
+/* Cancel new client */
+cancelNewClientBtn.addEventListener("click", () => {
+    newClientForm.style.display = "none";
+    newClientName.value = "";
+    newClientSurname.value = "";
+    newClientPhone.value = "";
+    newClientError.textContent = "";
+    clientSearch.focus();
+});
+
+
+/* Create new client */
+saveNewClientBtn.addEventListener("click", async () => {
+    newClientError.textContent = "";
+
+    const formData = new FormData();
+    formData.append("name", newClientName.value.trim());
+    formData.append("surname", newClientSurname.value.trim());
+    formData.append("phone", newClientPhone.value.trim());
+
+    const csrfToken =
+        document.querySelector("[name=csrfmiddlewaretoken]").value;
+
+    try {
+        const response = await fetch(
+            "{% url 'payment-client-create' %}",
+            {
+                method: "POST",
+                headers: {"X-CSRFToken": csrfToken},
+                body: formData,
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            newClientError.textContent =
+                "{% translate 'Please fill in the client data correctly.' %}";
+            return;
         }
 
-        updatePaymentTypeUI();
-    });
+        selectClient(data);
 
+        newClientForm.style.display = "none";
+        newClientName.value = "";
+        newClientSurname.value = "";
+        newClientPhone.value = "";
+
+    } catch (error) {
+        console.error("Client creation error:", error);
+
+        newClientError.textContent =
+            "{% translate 'An error occurred while creating the client.' %}";
+    }
+});
+
+
+/* Existing client when editing payment */
+function initializeSelectedClient() {
+    if (!clientInput.value) return;
+
+    const option = clientInput.options[clientInput.selectedIndex];
+
+    if (!option) return;
+
+    selectedClientName.textContent = option.textContent.trim();
+    clientAutocomplete.style.display = "none";
+    selectedClient.classList.add("visible");
+}
+
+
+/* Income / Expense */
+function updatePaymentTypeUI() {
+    const isExpense = paymentTypeSelect.value === "expense";
+
+    toggle.setAttribute("aria-checked", String(isExpense));
+
+    paymentForm.classList.remove("income-mode", "expense-mode");
+
+    if (isExpense) {
+        toggleSlider.classList.add("expense");
+        incomeLabel.classList.remove("active");
+        expenseLabel.classList.add("active");
+
+        clientField.style.display = "none";
+        serviceField.style.display = "none";
+
+        clientInput.disabled = true;
+        serviceSelect.disabled = true;
+
+        paymentForm.classList.add("expense-mode");
+    } else {
+        toggleSlider.classList.remove("expense");
+        incomeLabel.classList.add("active");
+        expenseLabel.classList.remove("active");
+
+        clientField.style.display = "";
+        serviceField.style.display = "";
+
+        clientInput.disabled = false;
+        serviceSelect.disabled = false;
+
+        paymentForm.classList.add("income-mode");
+    }
+}
+
+
+/* Toggle */
+toggle.addEventListener("click", event => {
+    event.preventDefault();
+
+    paymentTypeSelect.value =
+        paymentTypeSelect.value === "income"
+            ? "expense"
+            : "income";
 
     updatePaymentTypeUI();
+});
+
+toggle.addEventListener("keydown", event => {
+    if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggle.click();
+    }
+});
+
+
+function escapeHtml(value) {
+    const div = document.createElement("div");
+    div.textContent = value;
+    return div.innerHTML;
+}
+
+
+initializeSelectedClient();
+updatePaymentTypeUI();
 </script>
 
 {% endblock %}

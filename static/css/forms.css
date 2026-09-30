@@ -75,6 +75,18 @@
     padding: 10px 12px;
 }
 
+.form-error {
+    margin-top: 6px;
+    color: var(--color-danger);
+    font-size: 0.875rem;
+}
+
+.form-error ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
 .form-field textarea {
     height: 100px;
     min-height: 100px;
@@ -228,6 +240,12 @@
     cursor: pointer;
 }
 
+.toggle:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius: 999px;
+}
+
 .toggle select {
     position: absolute;
     opacity: 0;
@@ -280,4 +298,16 @@
 .payment-form.expense-mode {
     border-color: rgba(248, 113, 113, 0.45);
     box-shadow: 0 0 20px rgba(248, 113, 113, 0.08);
+}
+
+@media (max-width: 600px) {
+    .payment-type-field {
+        position: static;
+        justify-content: flex-start;
+        margin: 0 0 18px;
+    }
+
+    .payment-form h2 {
+        margin-bottom: 16px;
+    }
 }

@@ -5,6 +5,7 @@
 <div class="payments-section">
 
     <div class="payments-header">
+        <h1>{% translate "Monthly Expenses" %}</h1>
         <button type="button" class="btn-add-payment" id="btn-add-expense">
             {% translate "New expense" %}
         </button>
@@ -14,6 +15,11 @@
         <form id="new-expense-form" method="post" action="{% url 'monthly-expense-add' %}">
             {% csrf_token %}
         </form>
+        {% for expense in monthly_expenses %}
+        <form id="expense-form-{{ expense.pk }}" method="post" action="{% url 'monthly-expense-edit' expense.pk %}">
+            {% csrf_token %}
+        </form>
+        {% endfor %}
 
         <table class="payments-table expenses-table">
 
@@ -22,7 +28,9 @@
                 <th class="col-expense-name">{% translate "Name" %}</th>
                 <th class="col-expense-amount">{% translate "Amount" %}</th>
                 <th class="col-expense-date">{% translate "Created" %}</th>
-                <th class="col-expense-actions"></th>
+                <th class="col-expense-actions">
+                    <span class="visually-hidden">{% translate "Actions" %}</span>
+                </th>
             </tr>
             </thead>
 
@@ -36,6 +44,7 @@
                         id="new-expense-name-input"
                         class="table-edit-input"
                         placeholder="{% translate 'Name' %}"
+                        maxlength="100"
                         required
                     >
                 </td>
@@ -44,6 +53,7 @@
                         form="new-expense-form"
                         type="number"
                         step="0.01"
+                        min="0.01"
                         name="amount"
                         id="new-expense-amount-input"
                         class="table-edit-input expense"
@@ -75,13 +85,11 @@
             </tr>
 
             {% for expense in monthly_expenses %}
-
-            <form id="expense-form-{{ expense.pk }}" method="post" action="{% url 'monthly-expense-edit' expense.pk %}">
-                {% csrf_token %}
-            </form>
             <tr>
                 <td class="col-expense-name">
-                    <span class="expense-value" data-expense-id="{{ expense.pk }}" data-field="name">{{ expense.name }}</span>
+                    <button type="button" class="expense-value" data-expense-id="{{ expense.pk }}" data-field="name">
+                        {{ expense.name }}
+                    </button>
                     <input
                         form="expense-form-{{ expense.pk }}"
                         type="text"
@@ -89,16 +97,20 @@
                         value="{{ expense.name }}"
                         class="table-edit-input"
                         data-expense-id="{{ expense.pk }}"
+                        maxlength="100"
                         hidden
                         required
                     >
                 </td>
                 <td class="col-expense-amount">
-                    <span class="expense-value amount expense" data-expense-id="{{ expense.pk }}" data-field="amount">-{{ expense.amount|floatformat:2 }} zł</span>
+                    <button type="button" class="expense-value amount expense" data-expense-id="{{ expense.pk }}" data-field="amount">
+                        -{{ expense.amount|floatformat:2 }} zł
+                    </button>
                     <input
                         form="expense-form-{{ expense.pk }}"
                         type="number"
                         step="0.01"
+                        min="0.01"
                         name="amount"
                         value="{{ expense.amount|unlocalize }}"
                         class="table-edit-input expense"
@@ -112,6 +124,14 @@
                 </td>
                 <td class="col-expense-actions">
                     <div class="table-actions">
+                        <button
+                            type="button"
+                            class="btn-cancel btn-sm"
+                            id="cancel-edit-expense-btn-{{ expense.pk }}"
+                            hidden
+                        >
+                            {% translate "Cancel" %}
+                        </button>
                         <button
                             form="expense-form-{{ expense.pk }}"
                             type="submit"
@@ -152,66 +172,98 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const addBtn = document.getElementById("btn-add-expense");
-        const newRow = document.getElementById("new-expense-row");
-        const cancelBtn = document.getElementById("cancel-new-expense-btn");
-        const emptyRow = document.getElementById("empty-expenses-row");
-        const nameInput = document.getElementById("new-expense-name-input");
-        const amountInput = document.getElementById("new-expense-amount-input");
+document.addEventListener("DOMContentLoaded", function () {
+    const addBtn = document.getElementById("btn-add-expense");
+    const newRow = document.getElementById("new-expense-row");
+    const cancelBtn = document.getElementById("cancel-new-expense-btn");
+    const emptyRow = document.getElementById("empty-expenses-row");
+    const nameInput = document.getElementById("new-expense-name-input");
+    const amountInput = document.getElementById("new-expense-amount-input");
 
-        if (addBtn && newRow) {
-            addBtn.addEventListener("click", () => {
-                newRow.hidden = false;
-                if (emptyRow) emptyRow.hidden = true;
-                if (nameInput) nameInput.focus();
-            });
-        }
+    if (addBtn && newRow) {
+        addBtn.addEventListener("click", () => {
+            newRow.hidden = false;
+            if (emptyRow) emptyRow.hidden = true;
+            if (nameInput) nameInput.focus();
+        });
+    }
 
-        if (cancelBtn && newRow) {
-            cancelBtn.addEventListener("click", () => {
-                newRow.hidden = true;
-                if (nameInput) nameInput.value = "";
-                if (amountInput) amountInput.value = "";
-                if (emptyRow) {
-                    const expenseRows = document.querySelectorAll("tbody tr:not(#new-expense-row):not(#empty-expenses-row)");
-                    if (expenseRows.length === 0) {
-                        emptyRow.hidden = false;
-                    }
+    if (cancelBtn && newRow) {
+        cancelBtn.addEventListener("click", () => {
+            newRow.hidden = true;
+
+            if (nameInput) nameInput.value = "";
+            if (amountInput) amountInput.value = "";
+
+            if (emptyRow) {
+                const expenseRows = document.querySelectorAll(
+                    "tbody tr:not(#new-expense-row):not(#empty-expenses-row)"
+                );
+
+                if (expenseRows.length === 0) {
+                    emptyRow.hidden = false;
                 }
-            });
-        }
+            }
+        });
+    }
 
-        const values = document.querySelectorAll(".expense-value");
+    document.querySelectorAll(".expense-value").forEach((value) => {
+        value.addEventListener("click", () => {
+            const expenseId = value.dataset.expenseId;
+            const fieldName = value.dataset.field;
 
-        values.forEach((value) => {
-            value.addEventListener("click", () => {
-                const expenseId = value.dataset.expenseId;
-                const fieldName = value.dataset.field;
-                const input = document.querySelector(
-                    `.table-edit-input[data-expense-id="${expenseId}"][name="${fieldName}"]`
-                );
-                const saveButton = document.getElementById(
-                    `expense-save-btn-${expenseId}`
-                );
-                const deleteButton = document.getElementById(
-                    `expense-delete-btn-${expenseId}`
-                );
+            const input = document.querySelector(
+                `.table-edit-input[data-expense-id="${expenseId}"][name="${fieldName}"]`
+            );
 
-                if (input) {
-                    value.hidden = true;
-                    input.hidden = false;
-                    input.focus();
+            const cancelButton = document.getElementById(
+                `cancel-edit-expense-btn-${expenseId}`
+            );
 
-                    if (saveButton) {
-                        saveButton.hidden = false;
-                    }
-                    if (deleteButton) {
-                        deleteButton.hidden = false;
-                    }
-                }
-            });
+            const saveButton = document.getElementById(
+                `expense-save-btn-${expenseId}`
+            );
+
+            const deleteButton = document.getElementById(
+                `expense-delete-btn-${expenseId}`
+            );
+
+            if (input) {
+                value.hidden = true;
+                input.hidden = false;
+                input.focus();
+
+                cancelButton.hidden = false;
+                saveButton.hidden = false;
+                deleteButton.hidden = false;
+            }
         });
     });
+
+    document.querySelectorAll(
+        '[id^="cancel-edit-expense-btn-"]'
+    ).forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const id = btn.id.replace(
+                "cancel-edit-expense-btn-",
+                ""
+            );
+
+            document.querySelectorAll(
+                `.table-edit-input[data-expense-id="${id}"]`
+            ).forEach((input) => {
+                input.hidden = true;
+
+                document.querySelector(
+                    `.expense-value[data-expense-id="${id}"][data-field="${input.name}"]`
+                ).hidden = false;
+            });
+
+            btn.hidden = true;
+            document.getElementById(`expense-save-btn-${id}`).hidden = true;
+            document.getElementById(`expense-delete-btn-${id}`).hidden = true;
+        });
+    });
+});
 </script>
 {% endblock %}

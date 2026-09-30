@@ -16,12 +16,10 @@ from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR / ".env"
-            )
+load_dotenv(BASE_DIR / ".env")
 LOCALE_PATHS = [
     BASE_DIR / "locale",
 ]
@@ -45,13 +43,13 @@ ALLOWED_HOSTS = [
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 CSRF_TRUSTED_ORIGINS = [
-    f"https://{host.strip()}"
-    for host in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
-    if host.strip()
+    origin if origin.startswith(("http://", "https://")) else f"https://{origin}"
+    for value in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+    if (origin := value.strip())
 ]
 
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
 
 # Application definition
 
@@ -62,7 +60,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework",
     "finance",
 ]
 
@@ -136,7 +133,7 @@ LANGUAGES = [
     ("pl", "Polski"),
 ]
 
-TIME_ZONE = "UTC"
+TIME_ZONE = os.getenv("DJANGO_TIME_ZONE", "Europe/Warsaw")
 
 USE_I18N = True
 
@@ -148,13 +145,6 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication"
-    ],
-    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
-}
 
 LOGIN_REDIRECT_URL = "statistics"
 LOGOUT_REDIRECT_URL = "login"

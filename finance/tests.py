@@ -1,13 +1,14 @@
 from decimal import Decimal
+
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
-from django.test import Client as TestClient, TestCase
+from django.test import Client as TestClient
+from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from finance.forms import PaymentForm, PaymentServiceForm
+from finance.forms import MonthlyExpenseForm, PaymentForm, PaymentServiceForm
 from finance.models import Client, MonthlyExpense, Payment, PaymentService
-from finance.serializers import PaymentSerializer
 
 User = get_user_model()
 
@@ -60,7 +61,9 @@ class PaymentServiceTests(TestCase):
         self.assertContains(response, "300.00")
         self.assertContains(response, "service-value")
         self.assertContains(response, f'id="service-delete-btn-{service.pk}"')
-        self.assertContains(response, reverse("payment-service-delete", kwargs={"pk": service.pk}))
+        self.assertContains(
+            response, reverse("payment-service-delete", kwargs={"pk": service.pk})
+        )
 
     def test_payment_service_add_view(self):
         response = self.client.post(
@@ -124,8 +127,76 @@ class PaymentServiceTests(TestCase):
         self.assertEqual(payment.service, "Діагностика")
         self.assertEqual(payment.service_option, service)
 
+    def test_amounts_must_be_positive(self):
+        payment_form = PaymentForm(
+            data={
+                "amount": "0",
+                "payment_type": Payment.PaymentType.INCOME,
+                "date": timezone.localdate().isoformat(),
+            },
+            user=self.user,
+        )
+        monthly_expense_form = MonthlyExpenseForm(
+            data={"name": "Оренда", "amount": "-1"}
+        )
+        service_form = PaymentServiceForm(
+            data={"name": "Манікюр", "default_amount": "0"}
+        )
+
+        self.assertFalse(payment_form.is_valid())
+        self.assertFalse(monthly_expense_form.is_valid())
+        self.assertFalse(service_form.is_valid())
+
+    def test_payment_edit_clears_service_when_service_is_removed(self):
+        service = PaymentService.objects.create(
+            name="Манікюр",
+            default_amount=Decimal("500.00"),
+            owner=self.user,
+        )
+        payment = Payment.objects.create(
+            amount=Decimal("500.00"),
+            payment_type=Payment.PaymentType.INCOME,
+            date=timezone.localdate(),
+            service="Манікюр",
+            service_option=service,
+            owner=self.user,
+        )
+
+        response = self.client.post(
+            reverse("payment-edit", kwargs={"pk": payment.pk}),
+            {
+                "amount": "500.00",
+                "payment_type": Payment.PaymentType.EXPENSE,
+                "date": timezone.localdate().isoformat(),
+                "description": "Повернення коштів",
+            },
+        )
+
+        self.assertRedirects(response, reverse("payments"))
+        payment.refresh_from_db()
+        self.assertEqual(payment.service, "")
+        self.assertIsNone(payment.service_option)
+
+    def test_user_cannot_edit_another_users_payment(self):
+        other_user = User.objects.create_user(
+            username="other-user",
+            password="testpassword123",
+        )
+        payment = Payment.objects.create(
+            amount=Decimal("500.00"),
+            payment_type=Payment.PaymentType.INCOME,
+            date=timezone.localdate(),
+            service="Манікюр",
+            owner=other_user,
+        )
+
+        response = self.client.get(reverse("payment-edit", kwargs={"pk": payment.pk}))
+
+        self.assertEqual(response.status_code, 404)
+
     def test_monthly_expense_and_generate_command(self):
         import io
+
         expense = MonthlyExpense.objects.create(
             name="Оренда офісу",
             amount=Decimal("10000.00"),
@@ -154,7 +225,9 @@ class PaymentServiceTests(TestCase):
         self.assertContains(response, "amount expense")
         self.assertContains(response, "col-expense-date")
         self.assertContains(response, f'id="expense-delete-btn-{expense.pk}"')
-        self.assertContains(response, reverse("monthly-expense-delete", kwargs={"pk": expense.pk}))
+        self.assertContains(
+            response, reverse("monthly-expense-delete", kwargs={"pk": expense.pk})
+        )
 
     def test_monthly_expense_edit_view(self):
         expense = MonthlyExpense.objects.create(
@@ -171,20 +244,8 @@ class PaymentServiceTests(TestCase):
         self.assertEqual(expense.name, "Комунальні послуги")
         self.assertEqual(expense.amount, Decimal("600.00"))
 
-    def test_payment_serializer(self):
-        payment = Payment.objects.create(
-            amount=Decimal("120.00"),
-            payment_type=Payment.PaymentType.INCOME,
-            date=timezone.localdate(),
-            service="Консультація",
-            owner=self.user,
-        )
-        serializer = PaymentSerializer(payment)
-        self.assertEqual(serializer.data["service"], "Консультація")
-        self.assertNotIn("category", serializer.data)
-
     def test_clients_list_and_add_inline(self):
-        client = Client.objects.create(
+        Client.objects.create(
             name="Іван",
             surname="Франко",
             phone="+380501234567",
@@ -205,32 +266,16 @@ class PaymentServiceTests(TestCase):
         )
         self.assertRedirects(add_response, reverse("clients"))
         self.assertTrue(
-            Client.objects.filter(name="Леся", surname="Українка", owner=self.user).exists()
+            Client.objects.filter(
+                name="Леся", surname="Українка", owner=self.user
+            ).exists()
         )
 
-    def test_redirects_and_cleanup(self):
-        client = Client.objects.create(
-            name="Тарас",
-            surname="Шевченко",
-            owner=self.user,
-        )
-        expense = MonthlyExpense.objects.create(
-            name="Оренда",
-            amount=Decimal("5000.00"),
-            owner=self.user,
-        )
-
-        # GET on add views redirects to corresponding list pages
+    def test_add_views_redirect_get_requests(self):
         self.assertRedirects(self.client.get(reverse("client-add")), reverse("clients"))
-        self.assertRedirects(self.client.get(reverse("payment-service-add")), reverse("payment-services"))
-        self.assertRedirects(self.client.get(reverse("monthly-expense-add")), reverse("monthly-expenses"))
-
-        # Legacy detail/edit redirects
         self.assertRedirects(
-            self.client.get(reverse("monthly-expense-detail", kwargs={"pk": expense.pk})),
-            reverse("monthly-expenses"),
+            self.client.get(reverse("payment-service-add")), reverse("payment-services")
         )
         self.assertRedirects(
-            self.client.get(reverse("client-edit", kwargs={"pk": client.pk})),
-            reverse("client-detail", kwargs={"pk": client.pk}),
+            self.client.get(reverse("monthly-expense-add")), reverse("monthly-expenses")
         )

@@ -13,6 +13,12 @@
     margin-bottom: 16px;
 }
 
+.payments-header h1,
+.page-title {
+    margin: 0;
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+}
+
 .table-wrapper {
     overflow-x: auto;
     background-color: #1a1625;
@@ -191,6 +197,7 @@
     transition: 0.2s ease;
     user-select: none;
     max-width: 100%;
+    background: transparent;
 }
 
 .service-value:hover,

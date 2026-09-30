@@ -4,6 +4,8 @@
 
 {% block content %}
 
+<h1 class="page-title">{% translate "Statistics" %}</h1>
+
 <div class="row g-4 mb-4">
 
     <div class="col-md-4">
@@ -66,6 +68,46 @@
 
 </div>
 
+<div class="row g-4 mt-1">
+
+    <div class="col-md-3">
+        <div class="dashboard-card">
+            <p class="card-title">{% translate "Total clients" %}</p>
+            <h2 class="card-value">
+                {{ total_clients }}
+            </h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dashboard-card">
+            <p class="card-title">{% translate "Total procedures" %}</p>
+            <h2 class="card-value">
+                {{ total_procedures }}
+            </h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dashboard-card">
+            <p class="card-title">{% translate "New clients this month" %}</p>
+            <h2 class="card-value">
+                {{ new_clients_this_month }}
+            </h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dashboard-card">
+            <p class="card-title">{% translate "Returning clients this month" %}</p>
+            <h2 class="card-value">
+                {{ returning_clients_this_month }}
+            </h2>
+        </div>
+    </div>
+
+</div>
+
 <div class="mt-5">
 
     <h2>{% translate "Monthly statistics" %}</h2>
@@ -80,6 +122,10 @@
                     <th>{% translate "Income" %}</th>
                     <th>{% translate "Expenses" %}</th>
                     <th>{% translate "Profit" %}</th>
+                    <th>{% translate "Clients" %}</th>
+                    <th>{% translate "Procedures" %}</th>
+                    <th>{% translate "New clients" %}</th>
+                    <th>{% translate "Returning clients" %}</th>
                 </tr>
             </thead>
 
@@ -90,14 +136,18 @@
                 <tr>
                     <td>{{ item.month }} {{ item.year }}</td>
                     <td class="amount income">{{ item.income|floatformat:2 }} zł</td>
-                    <td class="amount expense">{{ item.expenses|floatformat:2 }} zł</td>
+                    <td class="amount expense">{{ item.expense|floatformat:2 }} zł</td>
                     <td class="amount profit">{{ item.profit|floatformat:2 }} zł</td>
+                    <td>{{ item.unique_clients }}</td>
+                    <td>{{ item.procedures_count }}</td>
+                    <td>{{ item.new_clients }}</td>
+                    <td>{{ item.returning_clients }}</td>
                 </tr>
 
                 {% empty %}
 
                 <tr>
-                    <td colspan="4" class="empty-payments">
+                    <td colspan="8" class="empty-payments">
                         {% translate "No financial data yet." %}
                     </td>
                 </tr>
