@@ -4,6 +4,7 @@
 {% block content %}
 <div class="payments-section">
     <div class="payments-header">
+        <h1>{% translate "Services" %}</h1>
         <button type="button" class="btn-add-payment" id="btn-add-service">
             {% translate "New service" %}
         </button>
@@ -13,13 +14,20 @@
         <form id="new-service-form" method="post" action="{% url 'payment-service-add' %}">
             {% csrf_token %}
         </form>
+        {% for service in services %}
+        <form id="service-form-{{ service.pk }}" method="post" action="{% url 'payment-service-edit' service.pk %}">
+            {% csrf_token %}
+        </form>
+        {% endfor %}
 
         <table class="payments-table services-table">
             <thead>
             <tr>
                 <th class="col-service-name">{% translate "Name" %}</th>
                 <th class="col-service-amount">{% translate "Amount" %}</th>
-                <th class="col-service-actions"></th>
+                <th class="col-service-actions">
+                    <span class="visually-hidden">{% translate "Actions" %}</span>
+                </th>
             </tr>
             </thead>
 
@@ -33,6 +41,7 @@
                         id="new-service-name-input"
                         class="table-edit-input"
                         placeholder="{% translate 'Name' %}"
+                        maxlength="100"
                         required
                     >
                 </td>
@@ -41,6 +50,7 @@
                         form="new-service-form"
                         type="number"
                         step="0.01"
+                        min="0.01"
                         name="default_amount"
                         id="new-service-amount-input"
                         class="table-edit-input"
@@ -69,12 +79,11 @@
             </tr>
 
             {% for service in services %}
-            <form id="service-form-{{ service.pk }}" method="post" action="{% url 'payment-service-edit' service.pk %}">
-                {% csrf_token %}
-            </form>
             <tr>
                 <td class="col-service-name">
-                    <span class="service-value" data-service-id="{{ service.pk }}" data-field="name">{{ service.name }}</span>
+                    <button type="button" class="service-value" data-service-id="{{ service.pk }}" data-field="name">
+                        {{ service.name }}
+                    </button>
                     <input
                         form="service-form-{{ service.pk }}"
                         type="text"
@@ -82,16 +91,20 @@
                         value="{{ service.name }}"
                         class="table-edit-input"
                         data-service-id="{{ service.pk }}"
+                        maxlength="100"
                         hidden
                         required
                     >
                 </td>
                 <td class="col-service-amount">
-                    <span class="service-value" data-service-id="{{ service.pk }}" data-field="default_amount">{{ service.default_amount }} zł</span>
+                    <button type="button" class="service-value" data-service-id="{{ service.pk }}" data-field="default_amount">
+                        {{ service.default_amount }} zł
+                    </button>
                     <input
                         form="service-form-{{ service.pk }}"
                         type="number"
                         step="0.01"
+                        min="0.01"
                         name="default_amount"
                         value="{{ service.default_amount|unlocalize }}"
                         class="table-edit-input"
@@ -102,6 +115,14 @@
                 </td>
                 <td class="col-service-actions">
                     <div class="table-actions">
+                        <button
+                            type="button"
+                            class="btn-cancel btn-sm"
+                            id="cancel-edit-service-btn-{{ service.pk }}"
+                            hidden
+                        >
+                            {% translate "Cancel" %}
+                        </button>
                         <button
                             form="service-form-{{ service.pk }}"
                             type="submit"
@@ -135,67 +156,119 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const addBtn = document.getElementById("btn-add-service");
-        const newRow = document.getElementById("new-service-row");
-        const cancelBtn = document.getElementById("cancel-new-service-btn");
-        const emptyRow = document.getElementById("empty-services-row");
-        const nameInput = document.getElementById("new-service-name-input");
-        const amountInput = document.getElementById("new-service-amount-input");
+document.addEventListener("DOMContentLoaded", function () {
+    const addBtn = document.getElementById("btn-add-service");
+    const newRow = document.getElementById("new-service-row");
+    const cancelBtn = document.getElementById("cancel-new-service-btn");
+    const emptyRow = document.getElementById("empty-services-row");
+    const nameInput = document.getElementById("new-service-name-input");
+    const amountInput = document.getElementById("new-service-amount-input");
 
-        if (addBtn && newRow) {
-            addBtn.addEventListener("click", () => {
-                newRow.hidden = false;
-                if (emptyRow) emptyRow.hidden = true;
-                if (nameInput) nameInput.focus();
-            });
-        }
+    if (addBtn && newRow) {
+        addBtn.addEventListener("click", () => {
+            newRow.hidden = false;
 
-        if (cancelBtn && newRow) {
-            cancelBtn.addEventListener("click", () => {
-                newRow.hidden = true;
-                if (nameInput) nameInput.value = "";
-                if (amountInput) amountInput.value = "";
-                if (emptyRow) {
-                    const serviceRows = document.querySelectorAll("tbody tr:not(#new-service-row):not(#empty-services-row)");
-                    if (serviceRows.length === 0) {
-                        emptyRow.hidden = false;
-                    }
+            if (emptyRow) {
+                emptyRow.hidden = true;
+            }
+
+            if (nameInput) {
+                nameInput.focus();
+            }
+        });
+    }
+
+    if (cancelBtn && newRow) {
+        cancelBtn.addEventListener("click", () => {
+            newRow.hidden = true;
+
+            if (nameInput) {
+                nameInput.value = "";
+            }
+
+            if (amountInput) {
+                amountInput.value = "";
+            }
+
+            if (emptyRow) {
+                const serviceRows = document.querySelectorAll(
+                    "tbody tr:not(#new-service-row):not(#empty-services-row)"
+                );
+
+                if (serviceRows.length === 0) {
+                    emptyRow.hidden = false;
                 }
-            });
-        }
+            }
+        });
+    }
 
-        const values = document.querySelectorAll(".service-value");
+    const values = document.querySelectorAll(".service-value");
 
-        values.forEach((value) => {
-            value.addEventListener("click", () => {
-                const serviceId = value.dataset.serviceId;
-                const fieldName = value.dataset.field;
-                const input = document.querySelector(
-                    `.table-edit-input[data-service-id="${serviceId}"][name="${fieldName}"]`
-                );
-                const saveButton = document.getElementById(
-                    `service-save-btn-${serviceId}`
-                );
-                const deleteButton = document.getElementById(
-                    `service-delete-btn-${serviceId}`
-                );
+    values.forEach((value) => {
+        value.addEventListener("click", () => {
+            const serviceId = value.dataset.serviceId;
+            const fieldName = value.dataset.field;
 
-                if (input) {
-                    value.hidden = true;
-                    input.hidden = false;
-                    input.focus();
+            const input = document.querySelector(
+                `.table-edit-input[data-service-id="${serviceId}"][name="${fieldName}"]`
+            );
 
-                    if (saveButton) {
-                        saveButton.hidden = false;
-                    }
-                    if (deleteButton) {
-                        deleteButton.hidden = false;
-                    }
+            const cancelButton = document.getElementById(
+                `cancel-edit-service-btn-${serviceId}`
+            );
+
+            const saveButton = document.getElementById(
+                `service-save-btn-${serviceId}`
+            );
+
+            const deleteButton = document.getElementById(
+                `service-delete-btn-${serviceId}`
+            );
+
+            if (input) {
+                value.hidden = true;
+                input.hidden = false;
+                input.focus();
+
+                if (cancelButton) {
+                    cancelButton.hidden = false;
                 }
-            });
+
+                if (saveButton) {
+                    saveButton.hidden = false;
+                }
+
+                if (deleteButton) {
+                    deleteButton.hidden = false;
+                }
+            }
         });
     });
+
+    document.querySelectorAll(
+        '[id^="cancel-edit-service-btn-"]'
+    ).forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const id = btn.id.replace(
+                "cancel-edit-service-btn-",
+                ""
+            );
+
+            document.querySelectorAll(
+                `.table-edit-input[data-service-id="${id}"]`
+            ).forEach((input) => {
+                input.hidden = true;
+
+                document.querySelector(
+                    `.service-value[data-service-id="${id}"][data-field="${input.name}"]`
+                ).hidden = false;
+            });
+
+            btn.hidden = true;
+            document.getElementById(`service-save-btn-${id}`).hidden = true;
+            document.getElementById(`service-delete-btn-${id}`).hidden = true;
+        });
+    });
+});
 </script>
 {% endblock %}
-

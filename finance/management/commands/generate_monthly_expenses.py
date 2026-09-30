@@ -11,7 +11,7 @@ class Command(BaseCommand):
         first_day_of_month = timezone.localdate().replace(day=1)
         create_count = 0
 
-        monthly_expenses = MonthlyExpense.objects.all()
+        monthly_expenses = MonthlyExpense.objects.exclude(owner__isnull=True)
 
         for expense in monthly_expenses:
             _, created = Payment.objects.get_or_create(

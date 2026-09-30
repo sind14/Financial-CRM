@@ -119,3 +119,15 @@
     border-color: #a78bfa;
     color: #a3e635;
 }
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.form-actions .btn-cancel,
+.form-actions .btn-delete {
+    margin-left: 0;
+}

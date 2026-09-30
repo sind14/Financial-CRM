@@ -1,0 +1,173 @@
+.client-autocomplete {
+    position: relative;
+}
+
+.client-search-input {
+    width: 100%;
+}
+
+.client-results {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 100;
+
+    display: none;
+
+    background: #111827;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+.client-result {
+    padding: 11px 14px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.client-result:hover {
+    background: var(--bg-element);
+}
+
+.client-result-name {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.client-result-phone {
+    margin-top: 3px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.create-client-btn {
+    display: none;
+    margin-top: 8px;
+    padding: 0;
+
+    border: none;
+    background: none;
+
+    color: var(--color-success);
+    cursor: pointer;
+}
+
+.create-client-btn:hover {
+    color: var(--text-primary);
+}
+
+
+/* Hidden Django client select */
+
+.hidden-client-field {
+    display: none !important;
+}
+
+
+/* Selected client */
+
+.selected-client {
+    display: none;
+
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 11px 14px;
+
+    background: #111827;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.selected-client.visible {
+    display: flex;
+}
+
+#selected-client-name {
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.clear-client {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 28px;
+    height: 28px;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 6px;
+
+    background: transparent;
+
+    color: var(--text-muted);
+    font-size: 20px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.clear-client:hover {
+    background: rgba(248, 113, 113, 0.1);
+    color: #f87171;
+}
+
+
+/* New client form */
+
+.new-client-form {
+    margin-top: 12px;
+    padding: 16px;
+
+    background: rgba(17, 24, 39, 0.5);
+    border: 1px solid #273449;
+    border-radius: 8px;
+}
+
+.new-client-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+#id_service_option {
+    color: #f3f4f6;
+}
+
+#id_service_option:has(option:checked[value=""]) {
+    color: #6b7280;
+}
+
+#id_service_option option {
+    color: #f3f4f6 !important;
+    background-color: #111827;
+}
+
+#id_service_option option[value=""] {
+    color: var(--text-muted) !important;
+    display: none;
+}
+
+#id_amount::-webkit-inner-spin-button,
+#id_amount::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#id_amount {
+    -moz-appearance: textfield;
+}

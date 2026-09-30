@@ -1,92 +1,118 @@
+from datetime import date
 from decimal import Decimal
-from django.utils.formats import date_format
-from django.utils.translation import gettext_lazy as _
+
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum, Count, Max
+from django.db.models import Count, Max, OuterRef, Q, Subquery, Sum
 from django.db.models.functions import Coalesce
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from rest_framework import generics, status
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from finance.forms import MonthlyExpenseForm, PaymentForm, ClientForm, PaymentServiceForm
+from django.utils.formats import date_format
+from django.utils.translation import gettext_lazy as _
+
+from finance.forms import (
+    ClientForm,
+    MonthlyExpenseForm,
+    PaymentForm,
+    PaymentServiceForm,
+)
 from finance.models import Client, MonthlyExpense, Payment, PaymentService
-from finance.serializers import ClientSerializer, PaymentSerializer
 
 
-def _get_monthly_summary(user, year, month):
-    payments = Payment.objects.filter(
-        owner=user,
-        date__year=year,
-        date__month=month,
+def _get_payment_summary(payments):
+    summary = payments.aggregate(
+        income=Coalesce(
+            Sum(
+                "amount",
+                filter=Q(payment_type=Payment.PaymentType.INCOME),
+            ),
+            Decimal("0.00"),
+        ),
+        expense=Coalesce(
+            Sum(
+                "amount",
+                filter=Q(payment_type=Payment.PaymentType.EXPENSE),
+            ),
+            Decimal("0.00"),
+        ),
+        unique_clients=Count(
+            "client_id",
+            filter=Q(
+                payment_type=Payment.PaymentType.INCOME,
+                client__isnull=False,
+            ),
+            distinct=True,
+        ),
+        procedures_count=Count(
+            "pk",
+            filter=Q(
+                payment_type=Payment.PaymentType.INCOME,
+                client__isnull=False,
+            ),
+        ),
     )
 
-    def total_payments(payment_type):
-        return payments.filter(payment_type=payment_type).aggregate(
-            total=Coalesce(Sum("amount"), Decimal("0.00"))
-        )["total"]
-
-    income = total_payments(Payment.PaymentType.INCOME)
-    expense = total_payments(Payment.PaymentType.EXPENSE)
-
     return {
-        "income": income,
-        "expense": expense,
-        "balance": income - expense,
+        **summary,
+        "profit": summary["income"] - summary["expense"],
     }
 
 
-class PaymentListCreateView(generics.ListCreateAPIView):
-    serializer_class = PaymentSerializer
-
-    def get_queryset(self):
-        return Payment.objects.filter(owner=self.request.user).order_by(
-            "-date", "-created_at"
+def _get_monthly_summary(user, year, month):
+    return _get_payment_summary(
+        Payment.objects.filter(
+            owner=user,
+            date__year=year,
+            date__month=month,
         )
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    )
 
 
-class ClientListCreateView(generics.ListCreateAPIView):
-    serializer_class = ClientSerializer
+def _get_monthly_client_statistics(user, year, month):
+    first_day_of_month = date(year, month, 1)
 
-    def get_queryset(self):
-        return Client.objects.filter(owner=self.request.user)
+    if month == 12:
+        first_day_of_next_month = date(year + 1, 1, 1)
+    else:
+        first_day_of_next_month = date(year, month + 1, 1)
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
-
-@api_view(["GET"])
-def monthly_summary_view(request):
-    today = timezone.localdate()
-
-    try:
-        year = int(request.query_params.get("year", today.year))
-        month = int(request.query_params.get("month", today.month))
-    except ValueError:
-        return Response(
-            {"detail": "Year and month must be numbers."},
-            status=status.HTTP_400_BAD_REQUEST,
+    first_visit_subquery = (
+        Payment.objects.filter(
+            owner=user,
+            client=OuterRef("pk"),
+            payment_type=Payment.PaymentType.INCOME,
         )
-
-    if not 1 <= month <= 12:
-        return Response(
-            {"detail": "Month must be between 1 and 12."},
-            status=status.HTTP_400_BAD_REQUEST,
+        .order_by(
+            "date",
+            "created_at",
         )
+        .values("date")[:1]
+    )
 
-    summary = _get_monthly_summary(request.user, year, month)
+    clients = (
+        Client.objects.filter(
+            owner=user,
+            payments__owner=user,
+            payments__payment_type=Payment.PaymentType.INCOME,
+            payments__date__gte=first_day_of_month,
+            payments__date__lt=first_day_of_next_month,
+        )
+        .annotate(
+            first_visit=Subquery(first_visit_subquery),
+        )
+        .distinct()
+    )
 
-    return Response(
-        {
-            "year": year,
-            "month": month,
-            "income": str(summary["income"]),
-            "expense": str(summary["expense"]),
-            "balance": str(summary["balance"]),
-        }
+    return clients.aggregate(
+        unique_clients=Count("pk"),
+        new_clients=Count(
+            "pk",
+            filter=Q(first_visit__gte=first_day_of_month),
+        ),
+        returning_clients=Count(
+            "pk",
+            filter=Q(first_visit__lt=first_day_of_month),
+        ),
     )
 
 
@@ -96,19 +122,7 @@ def statistics_view(request):
         owner=request.user,
     )
 
-    total_income = payments.filter(
-        payment_type=Payment.PaymentType.INCOME,
-    ).aggregate(
-        total=Coalesce(Sum("amount"), Decimal("0.00"))
-    )["total"]
-
-    total_expenses = payments.filter(
-        payment_type=Payment.PaymentType.EXPENSE,
-    ).aggregate(
-        total=Coalesce(Sum("amount"), Decimal("0.00"))
-    )["total"]
-
-    total_profit = total_income - total_expenses
+    total_summary = _get_payment_summary(payments)
 
     today = timezone.localdate()
 
@@ -118,41 +132,65 @@ def statistics_view(request):
         today.month,
     )
 
-    monthly_income = current_month_summary["income"]
-    monthly_expenses = current_month_summary["expense"]
-    monthly_profit = current_month_summary["balance"]
+    current_month_client_statistics = _get_monthly_client_statistics(
+        request.user,
+        today.year,
+        today.month,
+    )
+
+    total_clients = Client.objects.filter(
+        owner=request.user,
+    ).count()
 
     monthly_statistics = []
-
     months = payments.dates("date", "month", order="DESC")
 
     for month_date in months:
-        summary = _get_monthly_summary(
-            request.user,
-            month_date.year,
-            month_date.month,
-        )
+        if month_date.year == today.year and month_date.month == today.month:
+            summary = current_month_summary
+            client_statistics = current_month_client_statistics
+        else:
+            summary = _get_monthly_summary(
+                request.user,
+                month_date.year,
+                month_date.month,
+            )
+            client_statistics = _get_monthly_client_statistics(
+                request.user,
+                month_date.year,
+                month_date.month,
+            )
 
-        monthly_statistics.append({
-            "year": month_date.year,
-            "month": date_format(month_date, "F"),
-            "income": summary["income"],
-            "expenses": summary["expense"],
-            "profit": summary["balance"],
-        })
+        monthly_statistics.append(
+            {
+                "year": month_date.year,
+                "month": date_format(month_date, "F"),
+                "income": summary["income"],
+                "expense": summary["expense"],
+                "profit": summary["profit"],
+                "unique_clients": client_statistics["unique_clients"],
+                "procedures_count": summary["procedures_count"],
+                "new_clients": client_statistics["new_clients"],
+                "returning_clients": client_statistics["returning_clients"],
+            }
+        )
 
     return render(
         request,
         "finance/statistics.html",
         {
-            "total_income": total_income,
-            "total_expenses": total_expenses,
-            "total_profit": total_profit,
-
-            "monthly_income": monthly_income,
-            "monthly_expenses": monthly_expenses,
-            "monthly_profit": monthly_profit,
-
+            "total_income": total_summary["income"],
+            "total_expenses": total_summary["expense"],
+            "total_profit": total_summary["profit"],
+            "monthly_income": current_month_summary["income"],
+            "monthly_expenses": current_month_summary["expense"],
+            "monthly_profit": current_month_summary["profit"],
+            "total_clients": total_clients,
+            "total_procedures": total_summary["procedures_count"],
+            "new_clients_this_month": current_month_client_statistics["new_clients"],
+            "returning_clients_this_month": current_month_client_statistics[
+                "returning_clients"
+            ],
             "monthly_statistics": monthly_statistics,
         },
     )
@@ -160,14 +198,86 @@ def statistics_view(request):
 
 @login_required
 def payments_view(request):
-    payments = Payment.objects.filter(
-        owner=request.user,
-    ).order_by("-date", "-created_at")
+    payments = (
+        Payment.objects.filter(owner=request.user)
+        .select_related("client")
+        .order_by("-date", "-created_at")
+    )
 
     return render(
         request,
         "finance/payments.html",
         {"payments": payments},
+    )
+
+
+@login_required
+def client_search_view(request):
+    query = request.GET.get("q", "").strip()
+
+    if not query:
+        return JsonResponse({"clients": []})
+
+    words = query.split()
+
+    clients = Client.objects.filter(
+        owner=request.user,
+    )
+
+    for word in words:
+        clients = clients.filter(
+            Q(name__icontains=word)
+            | Q(surname__icontains=word)
+            | Q(phone__icontains=word)
+        )
+
+    clients = clients.order_by(
+        "surname",
+        "name",
+    )[:10]
+
+    return JsonResponse(
+        {
+            "clients": [
+                {
+                    "id": client.id,
+                    "name": client.name,
+                    "surname": client.surname,
+                    "phone": client.phone or "",
+                }
+                for client in clients
+            ]
+        }
+    )
+
+
+@login_required
+def client_create_ajax_view(request):
+    if request.method != "POST":
+        return JsonResponse(
+            {"error": "POST request required."},
+            status=405,
+        )
+
+    form = ClientForm(request.POST)
+
+    if not form.is_valid():
+        return JsonResponse(
+            {"errors": form.errors},
+            status=400,
+        )
+
+    client = form.save(commit=False)
+    client.owner = request.user
+    client.save()
+
+    return JsonResponse(
+        {
+            "id": client.id,
+            "name": client.name,
+            "surname": client.surname,
+            "phone": client.phone or "",
+        }
     )
 
 
@@ -180,8 +290,9 @@ def payment_add_view(request):
             payment = form.save(commit=False)
             payment.owner = request.user
 
-            if payment.service_option:
-                payment.service = payment.service_option.name
+            payment.service = (
+                payment.service_option.name if payment.service_option else ""
+            )
 
             payment.save()
 
@@ -208,8 +319,9 @@ def payment_edit_view(request, pk):
         if form.is_valid():
             payment = form.save(commit=False)
 
-            if payment.service_option:
-                payment.service = payment.service_option.name
+            payment.service = (
+                payment.service_option.name if payment.service_option else ""
+            )
 
             payment.save()
 
@@ -327,11 +439,6 @@ def monthly_expenses_view(request):
 
 
 @login_required
-def monthly_expense_detail_view(request, pk):
-    return redirect("monthly-expenses")
-
-
-@login_required
 def monthly_expense_add_view(request):
     if request.method == "POST":
         form = MonthlyExpenseForm(request.POST)
@@ -411,14 +518,34 @@ def monthly_expense_delete_view(request, pk):
 @login_required
 def clients_view(request):
     clients = (
-        Client.objects.filter(
-            owner=request.user
-        )
+        Client.objects.filter(owner=request.user)
         .annotate(
-            visits_count=Count("payments"),
-            last_visit=Max("payments__date"),
-            total_spent=Sum("payments__amount"),
-        ).order_by("surname", "name")
+            visits_count=Count(
+                "payments",
+                filter=Q(
+                    payments__owner=request.user,
+                    payments__payment_type=Payment.PaymentType.INCOME,
+                ),
+            ),
+            last_visit=Max(
+                "payments__date",
+                filter=Q(
+                    payments__owner=request.user,
+                    payments__payment_type=Payment.PaymentType.INCOME,
+                ),
+            ),
+            total_spent=Coalesce(
+                Sum(
+                    "payments__amount",
+                    filter=Q(
+                        payments__owner=request.user,
+                        payments__payment_type=Payment.PaymentType.INCOME,
+                    ),
+                ),
+                Decimal("0.00"),
+            ),
+        )
+        .order_by("surname", "name")
     )
 
     return render(
@@ -475,11 +602,6 @@ def client_detail_view(request, pk):
             "payments": payments,
         },
     )
-
-
-@login_required
-def client_edit_view(request, pk):
-    return redirect("client-detail", pk=pk)
 
 
 @login_required

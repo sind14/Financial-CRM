@@ -11,34 +11,90 @@
                 href="{% url 'statistics' %}"
                 class="{% if request.resolver_match.url_name == 'statistics' %}active{% endif %}"
         >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="icon icon-tabler icons-tabler-outline icon-tabler-chart-column">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M4 20h3"/>
+                <path d="M17 20h3"/>
+                <path d="M10.5 20h3"/>
+                <path d="M4 16h3"/>
+                <path d="M17 16h3"/>
+                <path d="M10.5 16h3"/>
+                <path d="M4 12h3"/>
+                <path d="M17 12h3"/>
+                <path d="M10.5 12h3"/>
+                <path d="M4 8h3"/>
+                <path d="M17 8h3"/>
+                <path d="M4 4h3"/>
+            </svg>
             {% translate "Statistics" %}
         </a>
 
         <a
                 href="{% url 'payments' %}"
-                class="{% if request.resolver_match.url_name == 'payments' %}active{% endif %}"
+                class="{% if request.resolver_match.url_name == 'payments' or request.resolver_match.url_name == 'payment-add' or request.resolver_match.url_name == 'payment-edit' %}active{% endif %}"
         >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="icon icon-tabler icons-tabler-outline icon-tabler-credit-card">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M3 8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3l0 -8"/>
+                <path d="M3 10l18 0"/>
+                <path d="M7 15l.01 0"/>
+                <path d="M11 15l2 0"/>
+            </svg>
             {% translate "Payments" %}
         </a>
 
         <a
                 href="{% url 'clients' %}"
-                class="{% if request.resolver_match.url_name == 'clients' %}active{% endif %}"
+                class="{% if request.resolver_match.url_name == 'clients' or request.resolver_match.url_name == 'client-detail' %}active{% endif %}"
         >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="icon icon-tabler icons-tabler-outline icon-tabler-users">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/>
+                <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                <path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/>
+            </svg>
             {% translate "Clients" %}
         </a>
 
         <a
                 href="{% url 'payment-services' %}"
-                class="{% if request.resolver_match.url_name == 'payment-services' %}active{% endif %}"
+                class="{% if request.resolver_match.url_name == 'payment-services' or request.resolver_match.url_name == 'payment-service-add' or request.resolver_match.url_name == 'payment-service-edit' %}active{% endif %}"
         >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="icon icon-tabler icons-tabler-outline icon-tabler-briefcase">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M3 9a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2l0 -9"/>
+                <path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2"/>
+                <path d="M12 12l0 .01"/>
+                <path d="M3 13a20 20 0 0 0 18 0"/>
+            </svg>
             {% translate "Services" %}
         </a>
 
         <a
                 href="{% url 'monthly-expenses' %}"
-                class="{% if request.resolver_match.url_name == 'monthly-expenses' %}active{% endif %}"
+                class="{% if request.resolver_match.url_name == 'monthly-expenses' or request.resolver_match.url_name == 'monthly-expense-add' or request.resolver_match.url_name == 'monthly-expense-edit' %}active{% endif %}"
         >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-repeat">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3"/>
+                <path d="M16 3v4"/>
+                <path d="M8 3v4"/>
+                <path d="M4 11h12"/>
+                <path d="M20 14l2 2h-3"/>
+                <path d="M20 18l2 -2"/>
+                <path d="M19 16a3 3 0 1 0 2 5.236"/>
+            </svg>
             {% translate "Monthly Expenses" %}
         </a>
 

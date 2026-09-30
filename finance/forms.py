@@ -1,7 +1,16 @@
 from django import forms
-from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+
 from finance.models import Client, MonthlyExpense, Payment, PaymentService
+
+
+def validate_positive_amount(value):
+    if value is not None and value <= 0:
+        raise ValidationError(_("Amount must be greater than zero."))
+
+    return value
 
 
 class PaymentServiceSelect(forms.Select):
@@ -28,9 +37,7 @@ class PaymentServiceSelect(forms.Select):
         instance = getattr(value, "instance", None)
 
         if instance:
-            option["attrs"]["data-default-amount"] = str(
-                instance.default_amount
-            )
+            option["attrs"]["data-default-amount"] = str(instance.default_amount)
 
         return option
 
@@ -55,6 +62,7 @@ class PaymentForm(forms.ModelForm):
             "client": _("Client"),
         }
         widgets = {
+            "amount": forms.NumberInput(attrs={"min": "0.01", "step": "0.01"}),
             "service_option": PaymentServiceSelect(),
             "date": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
         }
@@ -62,16 +70,16 @@ class PaymentForm(forms.ModelForm):
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if user is not None:
-            self.fields["client"].queryset = Client.objects.filter(
-                owner=user
-            ).order_by("surname", "name")
+        self.fields["service_option"].empty_label = _("Select service...")
 
-            self.fields["service_option"].queryset = (
-                PaymentService.objects.filter(
-                    owner=user
-                ).order_by("name")
+        if user is not None:
+            self.fields["client"].queryset = Client.objects.filter(owner=user).order_by(
+                "surname", "name"
             )
+
+            self.fields["service_option"].queryset = PaymentService.objects.filter(
+                owner=user
+            ).order_by("name")
 
         if not self.instance.pk:
             self.initial["date"] = timezone.localdate().isoformat()
@@ -83,16 +91,16 @@ class PaymentForm(forms.ModelForm):
         client = cleaned_data.get("client")
         payment_type = cleaned_data.get("payment_type")
 
-        if (
-                client is not None
-                and payment_type == Payment.PaymentType.EXPENSE
-        ):
+        if client is not None and payment_type == Payment.PaymentType.EXPENSE:
             self.add_error(
                 "payment_type",
                 _("Expenses cannot be assigned to a client."),
             )
 
         return cleaned_data
+
+    def clean_amount(self):
+        return validate_positive_amount(self.cleaned_data.get("amount"))
 
 
 class MonthlyExpenseForm(forms.ModelForm):
@@ -106,6 +114,9 @@ class MonthlyExpenseForm(forms.ModelForm):
             "name": _("Name"),
             "amount": _("Amount"),
         }
+
+    def clean_amount(self):
+        return validate_positive_amount(self.cleaned_data.get("amount"))
 
 
 class ClientForm(forms.ModelForm):
@@ -134,3 +145,6 @@ class PaymentServiceForm(forms.ModelForm):
             "name": _("Name"),
             "default_amount": _("Default amount"),
         }
+
+    def clean_default_amount(self):
+        return validate_positive_amount(self.cleaned_data.get("default_amount"))

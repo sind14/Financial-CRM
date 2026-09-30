@@ -23,3 +23,6 @@
 
 /* 7. Authentication & Login */
 @import url('auth.css');
+
+/* 8. Payment Form */
+@import url('payment-form.css');

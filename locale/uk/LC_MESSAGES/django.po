@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-29 20:25+0200\n"
+"POT-Creation-Date: 2026-09-30 13:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,128 +19,147 @@ msgstr ""
 "100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
 "(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
 
-#: .\finance\forms.py:50 .\finance\forms.py:107
-#: .\templates\finance\client_detail.html:87
-#: .\templates\finance\monthly_expenses.html:23
-#: .\templates\finance\payment_services.html:21
-#: .\templates\finance\payments.html:21
+#: .\finance\forms.py:11
+msgid "Amount must be greater than zero."
+msgstr "Сума повинна бути більшою за нуль."
+
+#: .\finance\forms.py:57 .\finance\forms.py:115
+#: .\templates\finance\client_detail.html:98
+#: .\templates\finance\monthly_expenses.html:29
+#: .\templates\finance\payment_services.html:27
+#: .\templates\finance\payments.html:22
 msgid "Amount"
 msgstr "Сума"
 
-#: .\finance\forms.py:51
+#: .\finance\forms.py:58 .\templates\finance\payment_form.html:113
 msgid "Payment type"
 msgstr "Тип платежу"
 
-#: .\finance\forms.py:52 .\templates\finance\client_detail.html:84
-#: .\templates\finance\payments.html:17
+#: .\finance\forms.py:59 .\templates\finance\client_detail.html:95
+#: .\templates\finance\payments.html:18
 msgid "Date"
 msgstr "Дата"
 
-#: .\finance\forms.py:53 .\templates\finance\client_detail.html:85
-#: .\templates\finance\payments.html:19
+#: .\finance\forms.py:60 .\templates\finance\client_detail.html:96
+#: .\templates\finance\payments.html:20
 msgid "Service"
 msgstr "Послуга"
 
-#: .\finance\forms.py:54 .\templates\finance\client_detail.html:86
-#: .\templates\finance\payments.html:20
+#: .\finance\forms.py:61 .\templates\finance\client_detail.html:97
+#: .\templates\finance\payments.html:21
 msgid "Description"
 msgstr "Опис"
 
-#: .\finance\forms.py:55 .\templates\finance\payments.html:18
+#: .\finance\forms.py:62 .\templates\finance\payments.html:19
 msgid "Client"
 msgstr "Клієнт"
 
-#: .\finance\forms.py:92
+#: .\finance\forms.py:73
+msgid "Select service..."
+msgstr "Оберіть послугу..."
+
+#: .\finance\forms.py:97
 msgid "Expenses cannot be assigned to a client."
 msgstr "Витрати не можна призначити клієнту."
 
-#: .\finance\forms.py:106 .\finance\forms.py:120 .\finance\forms.py:134
-#: .\templates\finance\clients.html:23 .\templates\finance\clients.html:43
-#: .\templates\finance\monthly_expenses.html:22
-#: .\templates\finance\monthly_expenses.html:38
-#: .\templates\finance\payment_services.html:20
-#: .\templates\finance\payment_services.html:35
+#: .\finance\forms.py:114 .\finance\forms.py:131 .\finance\forms.py:145
+#: .\templates\finance\clients.html:24 .\templates\finance\clients.html:44
+#: .\templates\finance\monthly_expenses.html:28
+#: .\templates\finance\monthly_expenses.html:46
+#: .\templates\finance\payment_form.html:58
+#: .\templates\finance\payment_services.html:26
+#: .\templates\finance\payment_services.html:43
 msgid "Name"
 msgstr "Назва"
 
-#: .\finance\forms.py:121 .\templates\finance\clients.html:52
+#: .\finance\forms.py:132 .\templates\finance\clients.html:54
+#: .\templates\finance\payment_form.html:63
 msgid "Surname"
 msgstr "Прізвище"
 
-#: .\finance\forms.py:122 .\templates\finance\client_detail.html:50
-#: .\templates\finance\clients.html:24 .\templates\finance\clients.html:64
+#: .\finance\forms.py:133 .\templates\finance\client_detail.html:56
+#: .\templates\finance\clients.html:25 .\templates\finance\clients.html:67
+#: .\templates\finance\payment_form.html:68
 msgid "Phone"
 msgstr "Телефон"
 
-#: .\finance\forms.py:135
+#: .\finance\forms.py:146
 msgid "Default amount"
 msgstr "Сума за замовчуванням"
 
-#: .\finance\views.py:198 .\templates\finance\payments.html:9
+#: .\finance\views.py:309 .\templates\finance\payments.html:10
 msgid "New Payment"
 msgstr "Новий платіж"
 
-#: .\finance\views.py:227
+#: .\finance\views.py:339
 msgid "Edit Payment"
 msgstr "Редагувати платіж"
 
-#: .\templates\finance\client_detail.html:58
-#: .\templates\finance\clients.html:77
-#: .\templates\finance\monthly_expenses.html:64
-#: .\templates\finance\monthly_expenses.html:122
-#: .\templates\finance\payment_form.html:63
-#: .\templates\finance\payment_services.html:58
-#: .\templates\finance\payment_services.html:112
+#: .\templates\finance\client_detail.html:69
+#: .\templates\finance\clients.html:81
+#: .\templates\finance\monthly_expenses.html:74
+#: .\templates\finance\monthly_expenses.html:142
+#: .\templates\finance\payment_form.html:150
+#: .\templates\finance\payment_services.html:68
+#: .\templates\finance\payment_services.html:133
 msgid "Save"
 msgstr "Зберегти"
 
-#: .\templates\finance\client_detail.html:62
+#: .\templates\finance\client_detail.html:73
 msgid "Back"
 msgstr "Назад"
 
-#: .\templates\finance\client_detail.html:69
+#: .\templates\finance\client_detail.html:80
 #: .\templates\finance\confirm_delete.html:7
 #: .\templates\finance\confirm_delete.html:17
-#: .\templates\finance\monthly_expenses.html:130
-#: .\templates\finance\payment_form.html:75
-#: .\templates\finance\payment_services.html:120
+#: .\templates\finance\monthly_expenses.html:150
+#: .\templates\finance\payment_form.html:159
+#: .\templates\finance\payment_services.html:141
 msgid "Delete"
 msgstr "Видалити"
 
-#: .\templates\finance\client_detail.html:77
-#: .\templates\finance\clients.html:26
+#: .\templates\finance\client_detail.html:88
+#: .\templates\finance\clients.html:27
 msgid "Visits"
 msgstr "Візити"
 
-#: .\templates\finance\client_detail.html:106
+#: .\templates\finance\client_detail.html:117
 msgid "No visits yet."
 msgstr "Візитів поки немає."
 
-#: .\templates\finance\clients.html:10
+#: .\templates\finance\clients.html:9 .\templates\finance\statistics.html:125
+#: .\templates\includes\sidebar.html:28
+msgid "Clients"
+msgstr "Клієнти"
+
+#: .\templates\finance\clients.html:11
 msgid "New client"
 msgstr "Новий клієнт"
 
-#: .\templates\finance\clients.html:25
+#: .\templates\finance\clients.html:26
 msgid "Last visit"
 msgstr "Останній візит"
 
-#: .\templates\finance\clients.html:27
+#: .\templates\finance\clients.html:28
 msgid "Total spent"
 msgstr "Загальні витрати"
 
-#: .\templates\finance\clients.html:28
+#: .\templates\finance\clients.html:29
 msgid "Added"
 msgstr "Додано"
 
-#: .\templates\finance\clients.html:84
+#: .\templates\finance\clients.html:88
 #: .\templates\finance\confirm_delete.html:21
-#: .\templates\finance\monthly_expenses.html:71
-#: .\templates\finance\payment_form.html:67
-#: .\templates\finance\payment_services.html:65
+#: .\templates\finance\monthly_expenses.html:81
+#: .\templates\finance\monthly_expenses.html:133
+#: .\templates\finance\payment_form.html:77
+#: .\templates\finance\payment_form.html:154
+#: .\templates\finance\payment_services.html:75
+#: .\templates\finance\payment_services.html:124
 msgid "Cancel"
 msgstr "Скасувати"
 
-#: .\templates\finance\clients.html:129
+#: .\templates\finance\clients.html:133
 msgid "No clients yet."
 msgstr "Клієнтів поки немає."
 
@@ -148,106 +167,157 @@ msgstr "Клієнтів поки немає."
 msgid "This action cannot be undone."
 msgstr "Цю дію неможливо скасувати."
 
-#: .\templates\finance\monthly_expenses.html:9
+#: .\templates\finance\monthly_expenses.html:8
+#: .\templates\includes\sidebar.html:42
+msgid "Monthly Expenses"
+msgstr "Щомісячні витрати"
+
+#: .\templates\finance\monthly_expenses.html:10
 msgid "New expense"
 msgstr "Нова витрата"
 
-#: .\templates\finance\monthly_expenses.html:24
+#: .\templates\finance\monthly_expenses.html:30
 msgid "Created"
 msgstr "Створено"
 
-#: .\templates\finance\monthly_expenses.html:140
+#: .\templates\finance\monthly_expenses.html:32
+#: .\templates\finance\payment_services.html:29
+msgid "Actions"
+msgstr "Дії"
+
+#: .\templates\finance\monthly_expenses.html:160
 msgid "No monthly expenses yet."
 msgstr "Щомісячних витрат поки немає."
 
-#: .\templates\finance\payment_form.html:31
-#: .\templates\finance\statistics.html:80
+#: .\templates\finance\payment_form.html:26
+msgid "Search client..."
+msgstr "Пошук клієнта..."
+
+#: .\templates\finance\payment_form.html:37
+msgid "Create new client"
+msgstr "Створити нового клієнта"
+
+#: .\templates\finance\payment_form.html:74
+msgid "Create client"
+msgstr "Створити клієнта"
+
+#: .\templates\finance\payment_form.html:106
+#: .\templates\finance\statistics.html:122
 msgid "Income"
 msgstr "Дохід"
 
-#: .\templates\finance\payment_form.html:40
+#: .\templates\finance\payment_form.html:120
 msgid "Expense"
 msgstr "Витрата"
 
-#: .\templates\finance\payment_services.html:8
+#: .\templates\finance\payment_form.html:348
+msgid "Please fill in the client data correctly."
+msgstr "Будь ласка, правильно заповніть дані клієнта."
+
+#: .\templates\finance\payment_form.html:363
+msgid "An error occurred while creating the client."
+msgstr "Виникла помилка під час створення клієнта."
+
+#: .\templates\finance\payment_services.html:7
+#: .\templates\includes\sidebar.html:35
+msgid "Services"
+msgstr "Послуги"
+
+#: .\templates\finance\payment_services.html:9
 msgid "New service"
 msgstr "Нова послуга"
 
-#: .\templates\finance\payment_services.html:128
+#: .\templates\finance\payment_services.html:149
 msgid "No payment services yet."
 msgstr "Послуг поки немає."
 
-#: .\templates\finance\payments.html:58
+#: .\templates\finance\payments.html:8 .\templates\includes\sidebar.html:21
+msgid "Payments"
+msgstr "Платежі"
+
+#: .\templates\finance\payments.html:59
 msgid "No payments yet."
 msgstr "Платежів поки немає."
 
-#: .\templates\finance\statistics.html:11
+#: .\templates\finance\statistics.html:7 .\templates\includes\sidebar.html:14
+msgid "Statistics"
+msgstr "Статистика"
+
+#: .\templates\finance\statistics.html:13
 msgid "Total income"
 msgstr "Загальний дохід"
 
-#: .\templates\finance\statistics.html:20
+#: .\templates\finance\statistics.html:22
 msgid "Total expenses"
 msgstr "Загальні витрати"
 
-#: .\templates\finance\statistics.html:29
+#: .\templates\finance\statistics.html:31
 msgid "Total profit"
 msgstr "Загальний прибуток"
 
-#: .\templates\finance\statistics.html:42
+#: .\templates\finance\statistics.html:44
 msgid "This month income"
 msgstr "Дохід за цей місяць"
 
-#: .\templates\finance\statistics.html:51
+#: .\templates\finance\statistics.html:53
 msgid "This month expenses"
 msgstr "Витрати за цей місяць"
 
-#: .\templates\finance\statistics.html:60
+#: .\templates\finance\statistics.html:62
 msgid "This month profit"
 msgstr "Прибуток за цей місяць"
 
-#: .\templates\finance\statistics.html:71
+#: .\templates\finance\statistics.html:75
+msgid "Total clients"
+msgstr "Усього клієнтів"
+
+#: .\templates\finance\statistics.html:84
+msgid "Total procedures"
+msgstr "Усього процедур"
+
+#: .\templates\finance\statistics.html:93
+msgid "New clients this month"
+msgstr "Нові клієнти цього місяця"
+
+#: .\templates\finance\statistics.html:102
+msgid "Returning clients this month"
+msgstr "Клієнти, що повернулися цього місяця"
+
+#: .\templates\finance\statistics.html:113
 msgid "Monthly statistics"
 msgstr "Статистика за місяцями"
 
-#: .\templates\finance\statistics.html:79
+#: .\templates\finance\statistics.html:121
 msgid "Month"
 msgstr "Місяць"
 
-#: .\templates\finance\statistics.html:81
+#: .\templates\finance\statistics.html:123
 msgid "Expenses"
 msgstr "Витрати"
 
-#: .\templates\finance\statistics.html:82
+#: .\templates\finance\statistics.html:124
 msgid "Profit"
 msgstr "Прибуток"
 
-#: .\templates\finance\statistics.html:101
+#: .\templates\finance\statistics.html:126
+msgid "Procedures"
+msgstr "Процедури"
+
+#: .\templates\finance\statistics.html:127
+msgid "New clients"
+msgstr "Нові клієнти"
+
+#: .\templates\finance\statistics.html:128
+msgid "Returning clients"
+msgstr "Клієнти, що повернулися"
+
+#: .\templates\finance\statistics.html:151
 msgid "No financial data yet."
 msgstr "Фінансових даних поки немає."
 
 #: .\templates\includes\navbar.html:43
 msgid "Logout"
 msgstr "Вийти"
-
-#: .\templates\includes\sidebar.html:14
-msgid "Statistics"
-msgstr "Статистика"
-
-#: .\templates\includes\sidebar.html:21
-msgid "Payments"
-msgstr "Платежі"
-
-#: .\templates\includes\sidebar.html:28
-msgid "Clients"
-msgstr "Клієнти"
-
-#: .\templates\includes\sidebar.html:35
-msgid "Services"
-msgstr "Послуги"
-
-#: .\templates\includes\sidebar.html:42
-msgid "Monthly Expenses"
-msgstr "Щомісячні витрати"
 
 #: .\templates\registration\login.html:10
 #: .\templates\registration\login.html:56
