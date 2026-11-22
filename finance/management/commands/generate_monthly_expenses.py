@@ -1,30 +1,19 @@
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 
-from finance.models import MonthlyExpense, Payment
+from finance.models import MonthlyExpense
+from finance.services import ensure_monthly_expense_payment
 
 
 class Command(BaseCommand):
     help = "Creates monthly payments from monthly expenses"
 
     def handle(self, *args, **options):
-        first_day_of_month = timezone.localdate().replace(day=1)
         create_count = 0
 
         monthly_expenses = MonthlyExpense.objects.exclude(owner__isnull=True)
 
         for expense in monthly_expenses:
-            _, created = Payment.objects.get_or_create(
-                monthly_expense=expense,
-                date=first_day_of_month,
-                defaults={
-                    "amount": expense.amount,
-                    "payment_type": Payment.PaymentType.EXPENSE,
-                    "service": expense.name,
-                    "description": "Автоматично створена щомісячна витрата",
-                    "owner": expense.owner,
-                },
-            )
+            _, created = ensure_monthly_expense_payment(expense)
 
             if created:
                 create_count += 1
